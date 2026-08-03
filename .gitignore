@@ -1,0 +1,10 @@
+frontend/node_modules/
+backend/venv/
+backend/chroma_db/
+backend/uploads/
+**/.env
+**/*.log
+**/.vscode/
+**/__pycache__/
+**/*.pyc
+.system_generated/
