@@ -115,8 +115,8 @@ export async function getAccounts() {
   return data;
 }
 
-export async function addAccount(username, role, name, emp_num, department, admin_id) {
-  const { data } = await API.post('/admin/account', { username, role, name, emp_num, department, admin_id });
+export async function addAccount(username, role, name, email, department, password, admin_id) {
+  const { data } = await API.post('/admin/account', { username, role, name, email, department, password, admin_id });
   return data;
 }
 
@@ -139,6 +139,7 @@ export async function googleLogin(credential) {
   const { data } = await API.post('/auth/google', { credential });
   return data;
 }
+
 
 export async function register(username, password, name, q1, a1, q2, a2, q3, a3) {
   const { data } = await API.post('/auth/register', { 

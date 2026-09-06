@@ -58,12 +58,8 @@ export default function AdminDashboard({ user, role }) {
   const [showEditAccess, setShowEditAccess] = useState(false);
 
   const accessGroupsList = [
-    'ALL', 'CEO', 'COO', 'COMPANY SECRETARY', 'SECRETARY TO CHAIRMAN',
-    'MANCOM', 'AUDIT', 'COMPLIANCE TEAM', 'INTERNAL AUDIT', 'RISK MANAGEMENT',
-    'BOARD', 'TENDER COMMITTEE', 'FINANCE', 'CREDIT', 'RECOVERY', 'MTOS',
-    'ALCO', 'PROCUEMENT COMMITTEE', 'CAU', 'ITSC', 'IT', 'OPERATIONS',
-    'ISC', 'PDC', 'PRODUCT HEADS', 'SUSTAINABILITYCOMMITTE', 'ORMC', 'MCC',
-    'GOLD LOAN', 'HR', 'LEGAL', 'MARKETING', 'STRATEGIC PLANNING'
+    'ALL', 'MANAGERS', 'DIRECTOR BOARD', 'IT', 'HR', 'LEGAL', 
+    'FINANCE', 'MARKETING', 'OPERATIONS', 'AUDIT'
   ];
 
   // Department filter for documents list
@@ -77,6 +73,7 @@ export default function AdminDashboard({ user, role }) {
   const [accRole, setAccRole] = useState('user');
   const [accName, setAccName] = useState('');
   const [accEmpNum, setAccEmpNum] = useState('');
+  const [accEmail, setAccEmail] = useState('');
   const [accDepartment, setAccDepartment] = useState('');
 
   // Account editing state
@@ -230,8 +227,8 @@ export default function AdminDashboard({ user, role }) {
   async function handleAddAccount(e) {
     e.preventDefault();
     try {
-      await addAccount(accEmpNum, accRole, accName, accEmpNum, accDepartment, user.username);
-      setAccName(''); setAccEmpNum(''); setAccDepartment('');
+      await addAccount(accEmpNum, accRole, accName, accEmail, accDepartment, accPassword, user.username);
+      setAccName(''); setAccEmpNum(''); setAccEmail(''); setAccDepartment(''); setAccPassword('');
       showToast(`Account "${accEmpNum}" created successfully.`, 'success');
       await fetchData();
     } catch (e) {
@@ -409,39 +406,29 @@ export default function AdminDashboard({ user, role }) {
                   </div>
                </div>
                <div>
-                  <label className="block text-[10px] font-medium text-slate-400 mb-1">Target Department</label>
+                   <label className="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-1">Target Department</label>
                     <select 
                       value={department} 
                       onChange={e => setDepartment(e.target.value)} 
-                      className="input-field py-1.5 px-3 text-xs w-full bg-dark-900 border-white/5"
+                      className="input-field py-1.5 px-3 text-xs w-full bg-slate-100/50 dark:bg-dark-900 border-slate-200 dark:border-white/5"
                     >
                       <option value="General">General / Other</option>
                       <option value="RESTRICTED / PRIVATE">RESTRICTED / PRIVATE (Emails only)</option>
-                      <option value="AUDIT">AUDIT</option>
-                      <option value="CBSL DIRECTIONS">CBSL DIRECTIONS</option>
-                      <option value="COMPLIANCE">COMPLIANCE</option>
-                      <option value="CREDIT">CREDIT</option>
-                      <option value="CREDIT ADMINISTRATION UNIT">CREDIT ADMINISTRATION UNIT</option>
-                      <option value="FINANCE">FINANCE</option>
-                      <option value="GOLD LOAN">GOLD LOAN</option>
-                      <option value="HR">HR</option>
+                      <option value="MANAGERS">MANAGERS</option>
+                      <option value="DIRECTOR BOARD">DIRECTOR BOARD</option>
                       <option value="IT">IT</option>
+                      <option value="HR">HR</option>
                       <option value="LEGAL">LEGAL</option>
+                      <option value="FINANCE">FINANCE</option>
                       <option value="MARKETING">MARKETING</option>
-                      <option value="OPERATIONS AND ADMINISTRATION">OPERATIONS AND ADMINISTRATION</option>
-                      <option value="RECOVERY">RECOVERY</option>
-                      <option value="RISK MANAGEMENT">RISK MANAGEMENT</option>
-                      <option value="STRATEGIC PLANNING">STRATEGIC PLANNING</option>
-                      <option value="COMPANY SECRETARY">COMPANY SECRETARY</option>
-                      <option value="SECRETARY TO CHAIRMAN">SECRETARY TO CHAIRMAN</option>
-                      <option value="MANCOM">MANCOM</option>
-                      <option value="CEO">CEO</option>
+                      <option value="OPERATIONS">OPERATIONS</option>
+                      <option value="AUDIT">AUDIT</option>
                     </select>
                </div>
                <div className="w-full">
                  <button 
                    onClick={() => setShowUploadAccess(!showUploadAccess)}
-                   className="flex items-center justify-between w-full input-field py-1.5 px-3 text-xs bg-dark-900 border-white/5 text-slate-400"
+                   className="flex items-center justify-between w-full input-field py-1.5 px-3 text-xs bg-slate-100/50 dark:bg-dark-900 border-slate-200 dark:border-white/5 text-slate-600 dark:text-slate-400"
                  >
                    <span>Access Control (Who can view this?) {allowedGroups.length > 0 ? `(${allowedGroups.length} selected)` : ''}</span>
                    {showUploadAccess ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -474,8 +461,8 @@ export default function AdminDashboard({ user, role }) {
                  )}
                </div>
                <div>
-                 <label className="block text-[10px] font-medium text-slate-400 mb-1">Allowed Emails (Comma separated, optional)</label>
-                 <input type="text" placeholder="e.g. kasun@enterprise.com, nimal@enterprise.com" value={allowedEmails} onChange={e => setAllowedEmails(e.target.value)} className="input-field py-1.5 px-3 text-xs w-full bg-dark-900 border-white/5"/>
+                 <label className="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-1">Allowed Emails (Comma separated, optional)</label>
+                 <input type="text" placeholder="e.g. kasun@enterprise.com, nimal@enterprise.com" value={allowedEmails} onChange={e => setAllowedEmails(e.target.value)} className="input-field py-1.5 px-3 text-xs w-full bg-slate-100/50 dark:bg-dark-900 border-slate-200 dark:border-white/5"/>
                </div>
             </div>
 
@@ -497,8 +484,8 @@ export default function AdminDashboard({ user, role }) {
                      {logView === 'document' ? <List className="w-5 h-5 text-brand-400"/> : <Brain className="w-5 h-5 text-purple-400"/>}
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-white uppercase tracking-tight">
-                      {logView === 'document' ? 'Document Action Logs' : 'AI Intelligence Audit'}
+                    <h2 className="text-base font-bold text-slate-800 dark:text-white uppercase tracking-tight">
+                      {logView === 'document' ? 'System Activity Logs' : 'AI Performance Audit'}
                     </h2>
                     <p className="text-[10px] text-slate-500 font-medium tracking-wide">
                       {logView === 'document' ? 'Tracking file operations and system changes' : 'Evaluating AI reasoning and hallucination corrections'}
@@ -513,8 +500,8 @@ export default function AdminDashboard({ user, role }) {
                        onClick={() => setLogView(logView === 'document' ? 'intelligence' : 'document')}
                        className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold tracking-wide transition-all border ${
                          logView === 'document' 
-                           ? 'bg-purple-600/10 text-purple-400 border-purple-500/30 hover:bg-purple-600 hover:text-white' 
-                           : 'bg-brand-600/10 text-brand-400 border-brand-500/30 hover:bg-brand-600 hover:text-white'
+                           ? 'bg-brand-50 dark:bg-brand-600/10 text-brand-600 dark:text-brand-400 border-brand-500/30 hover:bg-brand-500 hover:text-white' 
+                           : 'bg-emerald-50 dark:bg-emerald-600/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500 hover:text-white'
                        }`}
                      >
                         {logView === 'document' ? 'Switch to Intelligence' : 'Back to Document Logs'}
@@ -536,7 +523,7 @@ export default function AdminDashboard({ user, role }) {
                         placeholder="Search by Employee ID or Query..."
                         value={intelSearch}
                         onChange={e => setIntelSearch(e.target.value)}
-                        className="input-field w-full pl-9 py-2 text-xs bg-dark-900/50 border-white/5"
+                        className="input-field w-full pl-9 py-2 text-xs bg-slate-100/50 dark:bg-dark-900/50 border-slate-200 dark:border-white/5 text-slate-800 dark:text-slate-200"
                       />
                    </div>
                 </div>
@@ -546,21 +533,21 @@ export default function AdminDashboard({ user, role }) {
               {logView === 'document' ? (
                 logs.length === 0 ? <p className="text-sm text-slate-500 text-center mt-10 italic">No actions recorded yet.</p> : 
                 logs.map(log => (
-                  <div key={log.id} className="flex flex-col gap-1 text-sm bg-dark-500/50 p-3 rounded-xl border border-white/5 w-full hover:border-brand-500/30 transition-all group">
+                  <div key={log.id} className="flex flex-col gap-1 text-sm bg-slate-50 dark:bg-dark-800/50 p-3 rounded-xl border border-slate-200 dark:border-white/5 w-full hover:border-brand-500/30 transition-all group shadow-sm dark:shadow-none">
                     <div className="flex justify-between items-center">
                       <span className={`text-[10px] uppercase font-black px-2 py-0.5 rounded-md ${
-                        log.action.startsWith('USER_') ? 'bg-indigo-900/40 text-indigo-400' : 
-                        log.action === 'UPLOAD' ? 'bg-emerald-900/40 text-emerald-400' : 
-                        log.action === 'DELETE' ? 'bg-red-900/40 text-red-400' :
-                        'bg-amber-900/40 text-amber-400'
+                        log.action.startsWith('USER_') ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-400' : 
+                        log.action === 'UPLOAD' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400' : 
+                        log.action === 'DELETE' ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400' :
+                        'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400'
                       }`}>
                         {log.action.replace('_', ' ')}
                       </span>
                       <span className="text-[10px] text-slate-600 font-mono">{log.created_at.replace('T', ' ').split('.')[0]}</span>
                     </div>
-                    <p className="text-xs text-slate-300 mt-1 font-medium"><span className="text-slate-500">Actor:</span> {log.admin_id}</p>
-                    <p className="text-xs text-slate-300 font-medium"><span className="text-slate-500">File:</span> {log.filename}</p>
-                    {log.target && <p className="text-xs text-indigo-400 font-black mt-1 uppercase tracking-tighter"><span className="text-slate-500">Target Dept:</span> {log.target}</p>}
+                    <p className="text-xs text-slate-800 dark:text-slate-300 mt-1 font-medium"><span className="text-slate-500">Actor:</span> {log.admin_id}</p>
+                    <p className="text-xs text-slate-800 dark:text-slate-300 font-medium"><span className="text-slate-500">File:</span> {log.filename}</p>
+                    {log.target && <p className="text-xs text-indigo-600 dark:text-indigo-400 font-black mt-1 uppercase tracking-tighter"><span className="text-slate-500">Target Dept:</span> {log.target}</p>}
                   </div>
                 ))
               ) : (
@@ -575,11 +562,11 @@ export default function AdminDashboard({ user, role }) {
                   if (!matchesSearch) return false;
                   return true;
                 }).map(audit => (
-                  <div key={audit.id} className="flex flex-col gap-3 bg-dark-500/30 p-4 rounded-2xl border border-purple-500/10 w-full hover:border-purple-500/40 transition-all group relative">
+                  <div key={audit.id} className="flex flex-col gap-3 bg-slate-50 dark:bg-dark-800/50 p-4 rounded-2xl border border-purple-100 dark:border-purple-500/10 w-full hover:border-purple-300 dark:hover:border-purple-500/40 transition-all group relative">
                     <div className="flex justify-between items-center">
                        <div className="flex items-center gap-2">
-                          <div className="px-2 py-0.5 bg-purple-900/40 text-purple-400 text-[9px] font-black rounded-md border border-purple-500/20 uppercase tracking-widest">Reasoning Logic</div>
-                          <div className="px-2 py-0.5 bg-dark-900/50 text-slate-500 text-[9px] font-bold rounded-md border border-white/5 uppercase">{audit.loops} Retries</div>
+                          <div className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-400 text-[9px] font-black rounded-md border border-purple-200 dark:border-purple-500/20 uppercase tracking-widest">Reasoning Logic</div>
+                          <div className="px-2 py-0.5 bg-slate-200 dark:bg-dark-900/50 text-slate-600 dark:text-slate-500 text-[9px] font-bold rounded-md border border-slate-300 dark:border-white/5 uppercase">{audit.loops} Retries</div>
                        </div>
                        <span className="text-[10px] text-slate-600 font-mono">{audit.created_at.replace('T', ' ').split('.')[0]}</span>
                     </div>
@@ -587,22 +574,22 @@ export default function AdminDashboard({ user, role }) {
                     <div className="space-y-2">
                        <div className="flex items-center gap-2">
                           <span className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter w-16">User:</span>
-                          <span className="text-[11px] text-white font-black">{audit.employee_id}</span>
+                          <span className="text-[11px] text-slate-800 dark:text-white font-black">{audit.employee_id}</span>
                        </div>
                        <div className="flex items-start gap-2">
                           <span className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter w-16 shrink-0 mt-0.5">Query:</span>
-                          <p className="text-[11px] text-slate-300 leading-relaxed italic">"{audit.query}"</p>
+                          <p className="text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed italic">"{audit.query}"</p>
                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-2 mt-2">
                        <details className="group/detail">
-                          <summary className="flex items-center justify-between p-2 rounded-lg bg-dark-900/40 cursor-pointer hover:bg-dark-900/60 transition-colors">
+                          <summary className="flex items-center justify-between p-2 rounded-lg bg-slate-200/50 dark:bg-dark-900/40 cursor-pointer hover:bg-slate-200 dark:hover:bg-dark-900/60 transition-colors">
                              <div className="flex items-center gap-2">
                                 <Info className="w-3 h-3 text-amber-500" />
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Thinking Process</span>
+                                <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">Thinking Process</span>
                              </div>
-                             <ChevronDown className="w-3 h-3 text-slate-600 group-open/detail:rotate-180 transition-transform" />
+                             <ChevronDown className="w-3 h-3 text-slate-500 dark:text-slate-600 group-open/detail:rotate-180 transition-transform" />
                           </summary>
                           <div className="p-3 space-y-4 border-l border-amber-500/20 ml-2 mt-2">
                              <div>
@@ -638,8 +625,8 @@ export default function AdminDashboard({ user, role }) {
           <div className="glass-card p-6 w-full">
             <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/5 w-full">
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-indigo-400"/>
-                <h2 className="text-base font-semibold text-white">User & Admin Management</h2>
+                <Users className="w-5 h-5 text-brand-500 dark:text-indigo-400"/>
+                <h2 className="text-base font-semibold text-slate-800 dark:text-white">User & Admin Management</h2>
               </div>
               <div className="flex w-full max-w-[450px] gap-2">
                 <div className="relative flex-1">
@@ -649,13 +636,13 @@ export default function AdminDashboard({ user, role }) {
                      placeholder="Search Email or Name..."
                      value={accSearch}
                      onChange={e => setAccSearch(e.target.value)}
-                     className="input-field w-full pl-9 py-1.5 text-xs bg-dark-900/50 border-white/5 rounded-lg"
+                     className="input-field w-full pl-9 py-1.5 text-xs bg-white dark:bg-dark-900/50 border-slate-200 dark:border-white/5 rounded-lg text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500"
                    />
                 </div>
                 <select 
                    value={accFilterDept} 
                    onChange={e => setAccFilterDept(e.target.value)}
-                   className="input-field py-1.5 px-3 text-xs bg-dark-900/50 border-white/5 rounded-lg w-[160px]"
+                   className="input-field py-1.5 px-3 text-xs bg-white dark:bg-dark-900/50 border-slate-200 dark:border-white/5 rounded-lg w-[160px] text-slate-700 dark:text-slate-300"
                 >
                    <option value="">All Departments</option>
                    <option value="AUDIT">AUDIT</option>
@@ -681,13 +668,13 @@ export default function AdminDashboard({ user, role }) {
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-               <div className="col-span-1 bg-dark-800/50 p-4 rounded-xl border border-white/5 shadow-inner shrink-0">
-                   <h3 className="text-xs font-semibold text-slate-300 mb-1 flex items-center gap-1"><PlusCircle className="w-4 h-4"/> Authorize Account</h3>
-                   <p className="text-[10px] text-slate-500 mb-3 italic">User will set their own password during registration.</p>
+               <div className="col-span-1 bg-slate-100/50 dark:bg-dark-800/50 p-4 rounded-xl border border-slate-200 dark:border-white/5 shadow-inner shrink-0">
+                   <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1"><PlusCircle className="w-4 h-4"/> Authorize Account</h3>
+                   <p className="text-[10px] text-slate-500 mb-3 italic">User will be forced to change password & set security questions on first login.</p>
                    <form onSubmit={handleAddAccount} className="space-y-3 w-full">
                      <div>
-                        <label className="block text-[10px] text-slate-400 mb-1">Role *</label>
-                        <select value={accRole} onChange={e=>setAccRole(e.target.value)} className="input-field py-1.5 px-3 text-xs w-full cursor-pointer">
+                        <label className="block text-[10px] text-slate-500 dark:text-slate-400 mb-1">Role *</label>
+                        <select value={accRole} onChange={e=>setAccRole(e.target.value)} className="input-field py-1.5 px-3 text-xs w-full bg-white dark:bg-dark-900 border-slate-200 dark:border-white/5 cursor-pointer">
                            <option value="user">User</option>
                            <option value="subadmin">Sub-Admin</option>
                            {role === 'master' && <option value="master">Master</option>}
@@ -696,16 +683,24 @@ export default function AdminDashboard({ user, role }) {
                         </select>
                      </div>
                      <div>
-                        <label className="block text-[10px] text-slate-400 mb-1">Name *</label>
-                        <input type="text" value={accName} onChange={e=>setAccName(e.target.value)} required className="input-field py-1.5 px-3 text-xs w-full"/>
+                        <label className="block text-[10px] text-slate-500 dark:text-slate-400 mb-1">Name *</label>
+                        <input type="text" value={accName} onChange={e=>setAccName(e.target.value)} required className="input-field py-1.5 px-3 text-xs w-full bg-white dark:bg-dark-900 border-slate-200 dark:border-white/5"/>
                      </div>
                      <div>
-                        <label className="block text-[10px] text-slate-400 mb-1">Email Address *</label>
-                        <input type="text" value={accEmpNum} onChange={e=>setAccEmpNum(e.target.value)} required placeholder="name@enterprise.com" className="input-field py-1.5 px-3 text-xs w-full"/>
+                        <label className="block text-[10px] text-slate-500 dark:text-slate-400 mb-1">Employee Number (Username) *</label>
+                        <input type="text" value={accEmpNum} onChange={e=>setAccEmpNum(e.target.value)} required placeholder="EMPXXXX" className="input-field py-1.5 px-3 text-xs w-full bg-white dark:bg-dark-900 border-slate-200 dark:border-white/5"/>
                      </div>
                      <div>
-                        <label className="block text-[10px] text-slate-400 mb-1">Department</label>
-                        <select value={accDepartment} onChange={e=>setAccDepartment(e.target.value)} className="input-field py-1.5 px-3 text-xs w-full">
+                        <label className="block text-[10px] text-slate-500 dark:text-slate-400 mb-1">Default Password *</label>
+                        <input type="password" value={accPassword} onChange={e=>setAccPassword(e.target.value)} required placeholder="••••••••" className="input-field py-1.5 px-3 text-xs w-full bg-white dark:bg-dark-900 border-slate-200 dark:border-white/5"/>
+                     </div>
+                     <div>
+                        <label className="block text-[10px] text-slate-500 dark:text-slate-400 mb-1">Google Email Address</label>
+                        <input type="email" value={accEmail} onChange={e=>setAccEmail(e.target.value)} placeholder="name@gmail.com" className="input-field py-1.5 px-3 text-xs w-full bg-white dark:bg-dark-900 border-slate-200 dark:border-white/5"/>
+                     </div>
+                     <div>
+                        <label className="block text-[10px] text-slate-500 dark:text-slate-400 mb-1">Department</label>
+                        <select value={accDepartment} onChange={e=>setAccDepartment(e.target.value)} className="input-field py-1.5 px-3 text-xs w-full bg-white dark:bg-dark-900 border-slate-200 dark:border-white/5">
                           <option value="">None (General Only)</option>
                           <option value="AUDIT">AUDIT</option>
                           <option value="CBSL DIRECTIONS">CBSL DIRECTIONS</option>
@@ -732,16 +727,16 @@ export default function AdminDashboard({ user, role }) {
                   </form>
                </div>
                <div className="col-span-2 overflow-y-auto max-h-[400px] w-full">
-                  <table className="w-full text-left text-xs text-slate-300">
-                     <thead className="text-[10px] uppercase text-slate-500 bg-dark-600/50 sticky top-0 z-10">
+                  <table className="w-full text-left text-xs text-slate-700 dark:text-slate-300">
+                     <thead className="text-[10px] uppercase text-slate-500 bg-slate-200/50 dark:bg-dark-600/50 sticky top-0 z-10">
                         <tr>
-                           <th className="px-3 py-2 border-b border-white/5">Username</th>
-                           <th className="px-3 py-2 border-b border-white/5">Role</th>
-                           <th className="px-3 py-2 border-b border-white/5">Name</th>
-                           <th className="px-3 py-2 border-b border-white/5 text-right w-20">Action</th>
+                           <th className="px-3 py-2 border-b border-slate-300 dark:border-white/5">Username</th>
+                           <th className="px-3 py-2 border-b border-slate-300 dark:border-white/5">Role</th>
+                           <th className="px-3 py-2 border-b border-slate-300 dark:border-white/5">Name</th>
+                           <th className="px-3 py-2 border-b border-slate-300 dark:border-white/5 text-right w-20">Action</th>
                         </tr>
                      </thead>
-                     <tbody className="divide-y divide-white/5">
+                     <tbody className="divide-y divide-slate-200 dark:divide-white/5">
                         {accounts.filter(acc => {
                            if (accFilterDept && acc.department !== accFilterDept) return false;
                            if (!accSearch) return true;
@@ -751,14 +746,15 @@ export default function AdminDashboard({ user, role }) {
                         }).map(acc => {
                            const isEditing = editingAcc === acc.username;
                            return (
-                           <tr key={acc.id} className="hover:bg-white/5">
-                              <td className="px-3 py-2 font-mono text-brand-300">
-                                 {acc.username}
-                                 {isEditing && <input type="text" placeholder="New Password..." value={editAccPassword} onChange={e=>setEditAccPassword(e.target.value)} className="block mt-1 input-field py-1 px-2 text-[10px] w-full"/>}
+                           <tr key={acc.id} className="hover:bg-slate-100 dark:hover:bg-white/5">
+                              <td className="px-3 py-2 font-mono text-brand-600 dark:text-brand-300">
+                                 <div>{acc.username}</div>
+                                 {acc.email && <div className="text-[9px] text-slate-500 mt-0.5">{acc.email}</div>}
+                                 {isEditing && <input type="text" placeholder="New Password..." value={editAccPassword} onChange={e=>setEditAccPassword(e.target.value)} className="block mt-1 input-field py-1 px-2 text-[10px] w-full bg-white dark:bg-dark-900 border-slate-200 dark:border-white/5"/>}
                               </td>
                               <td className="px-3 py-2">
                                 {isEditing ? (
-                                    <select value={editAccRole} onChange={e=>setEditAccRole(e.target.value)} className="input-field py-1 px-2 text-[10px] w-full">
+                                    <select value={editAccRole} onChange={e=>setEditAccRole(e.target.value)} className="input-field py-1 px-2 text-[10px] w-full bg-white dark:bg-dark-900 border-slate-200 dark:border-white/5">
                                        <option value="user">User</option>
                                        <option value="subadmin">Sub-Admin</option>
                                        {role === 'master' && <option value="admin">Admin</option>}
@@ -766,7 +762,7 @@ export default function AdminDashboard({ user, role }) {
                                        {role === 'master' && <option value="master">Master</option>}
                                     </select>
                                 ) : (
-                                    <span className={`px-2 py-0.5 rounded text-[10px] ${acc.role==='admin' ? 'bg-indigo-900/50 text-indigo-400' : acc.role==='subadmin' ? 'bg-amber-900/50 text-amber-400' : acc.role==='account_admin' ? 'bg-cyan-900/50 text-cyan-400' : 'bg-slate-800 text-slate-400'}`}>
+                                    <span className={`px-2 py-0.5 rounded text-[10px] ${acc.role==='admin' ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400' : acc.role==='subadmin' ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400' : acc.role==='account_admin' ? 'bg-cyan-100 dark:bg-cyan-900/50 text-cyan-600 dark:text-cyan-400' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
                                       {acc.role.replace('_', ' ').toUpperCase()}
                                     </span>
                                 )}
@@ -826,8 +822,8 @@ export default function AdminDashboard({ user, role }) {
                                          <>
                                            <button onClick={() => {
                                                setEditingAcc(acc.username); setEditAccRole(acc.role); setEditAccName(acc.name || ''); setEditAccPreferredName(acc.preferred_name || ''); setEditAccEmpNum(acc.emp_num || ''); setEditAccDepartment(acc.department || ''); setEditAccPassword('');
-                                           }} className="text-brand-300 hover:text-brand-200 bg-brand-900/20 px-2 py-1 rounded">Edit</button>
-                                           <button onClick={() => handleDeleteAccount(acc.username)} className="text-red-400 hover:text-red-300 bg-red-900/20 px-2 py-1 rounded">Del</button>
+                                           }} className="text-brand-600 dark:text-brand-300 hover:text-brand-500 dark:hover:text-brand-200 bg-brand-50 dark:bg-brand-900/20 px-2 py-1 rounded">Edit</button>
+                                           <button onClick={() => handleDeleteAccount(acc.username)} className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded">Del</button>
                                          </>
                                        )}
                                     </div>
@@ -851,17 +847,17 @@ export default function AdminDashboard({ user, role }) {
 
          {/* DOCUMENTS SECTION */}
         {role !== 'account_admin' && (
-        <div className="glass-card p-6 border-b border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.5)] w-full block">
-           <div className="flex items-center justify-between mb-6 border-b border-white/5 pb-4">
+        <div className="glass-card p-6 border-b border-slate-200 dark:border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.5)] w-full block">
+           <div className="flex items-center justify-between mb-6 border-b border-slate-200 dark:border-white/5 pb-4">
              <div className="flex items-center gap-2">
-                <AlignLeft className="w-5 h-5 text-emerald-400"/>
-                <h2 className="text-base font-semibold text-white">Stored Knowledge by Document</h2>
+                <AlignLeft className="w-5 h-5 text-emerald-500 dark:text-emerald-400"/>
+                <h2 className="text-base font-semibold text-slate-800 dark:text-white">Stored Knowledge by Document</h2>
              </div>
              <div className="flex items-center gap-3">
                <select 
                   value={docFilterDept} 
                   onChange={e => setDocFilterDept(e.target.value)} 
-                  className="input-field py-1 px-3 text-xs bg-dark-900 border-white/5 rounded-lg text-slate-300 focus:border-emerald-500/50"
+                  className="input-field py-1 px-3 text-xs bg-slate-100/50 dark:bg-dark-900 border-slate-200 dark:border-white/5 rounded-lg text-slate-700 dark:text-slate-300 focus:border-emerald-500/50"
                >
                   <option value="All">All Departments</option>
                   <option value="General">General / Other</option>
@@ -883,7 +879,7 @@ export default function AdminDashboard({ user, role }) {
                   <option value="COMPANY SECRETARY">COMPANY SECRETARY</option>
                   <option value="SECRETARY TO CHAIRMAN">SECRETARY TO CHAIRMAN</option>
                </select>
-               <span className="text-xs bg-dark-400 text-slate-300 px-3 py-1 rounded-full border border-white/10 font-mono">Total Embedded Chunks: {docCount ?? 0}</span>
+               <span className="text-xs bg-slate-200 dark:bg-dark-400 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-full border border-slate-300 dark:border-white/10 font-mono">Total Embedded Chunks: {docCount ?? 0}</span>
              </div>
            </div>
            
@@ -906,56 +902,56 @@ export default function AdminDashboard({ user, role }) {
                      const isExpanded = expandedDocs[doc.id];
                      
                      return (
-                     <div key={doc.id} className="bg-dark-500/30 rounded-xl border border-white/5 overflow-hidden transition-all shadow-md w-full block">
-                         <div className={`bg-dark-400/50 px-4 py-3 flex flex-wrap gap-2 items-center justify-between border-b border-white/5 transition w-full ${(role === 'master' || role === 'admin') ? 'hover:bg-dark-400 cursor-pointer' : ''}`} onClick={(e) => {
+                     <div key={doc.id} className="bg-slate-100/50 dark:bg-dark-500/30 rounded-xl border border-slate-200 dark:border-white/5 overflow-hidden transition-all shadow-md w-full block">
+                         <div className={`bg-slate-200/50 dark:bg-dark-400/50 px-4 py-3 flex flex-wrap gap-2 items-center justify-between border-b border-slate-200 dark:border-white/5 transition w-full ${(role === 'master' || role === 'admin') ? 'hover:bg-slate-200 dark:hover:bg-dark-400 cursor-pointer' : ''}`} onClick={(e) => {
                              if((role === 'master' || role === 'admin') && !e.target.closest('button') && !e.target.closest('input')) toggleDocExpand(doc.id);
                          }}>
                              <div className="flex items-center gap-3">
                                  {(role === 'master' || role === 'admin') && (
-                                    isExpanded ? <ChevronUp className="w-4 h-4 text-brand-400 shrink-0"/> : <ChevronDown className="w-4 h-4 text-slate-400 shrink-0"/>
+                                    isExpanded ? <ChevronUp className="w-4 h-4 text-brand-500 dark:text-brand-400 shrink-0"/> : <ChevronDown className="w-4 h-4 text-slate-400 shrink-0"/>
                                  )}
-                                 <FileText className="w-4 h-4 text-brand-400 shrink-0" />
+                                 <FileText className="w-4 h-4 text-brand-500 dark:text-brand-400 shrink-0" />
                                  {isEditing ? (
-                                     <input type="text" value={editFilename} onChange={e=>setEditFilename(e.target.value)} className="input-field py-1 px-2 text-xs w-48 text-white bg-dark-700" onClick={e=>e.stopPropagation()}/>
+                                     <input type="text" value={editFilename} onChange={e=>setEditFilename(e.target.value)} className="input-field py-1 px-2 text-xs w-48 text-slate-800 dark:text-white bg-white dark:bg-dark-700 border-slate-200 dark:border-white/5" onClick={e=>e.stopPropagation()}/>
                                  ) : (
-                                    <span className="font-semibold text-sm text-slate-200">{doc.filename}</span>
+                                    <span className="font-semibold text-sm text-slate-800 dark:text-slate-200">{doc.filename}</span>
                                  )}
-                                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-white/5 whitespace-nowrap shrink-0">{docChunks.length} chunks</span>
+                                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-white/5 whitespace-nowrap shrink-0">{docChunks.length} chunks</span>
                              </div>
                              
                              {!isEditing && (
-                               <div className="flex flex-wrap items-center gap-3 text-[10px] text-slate-400">
+                               <div className="flex flex-wrap items-center gap-3 text-[10px] text-slate-500 dark:text-slate-400">
                                    {doc.start_date && <span>Start: {doc.start_date}</span>}
-                                   {doc.expire_date && <span className="text-amber-400/80">Expires: {doc.expire_date}</span>}
-                                   <span>Dept: <span className="text-slate-300">{doc.department || 'General'}</span></span>
-                                   {doc.allowed_groups && <span>Groups: <span className="text-slate-300 max-w-[150px] inline-block align-bottom leading-tight">{doc.allowed_groups}</span></span>}
-                                   {doc.allowed_emails && <span>Emails: <span className="text-slate-300 truncate max-w-[100px] inline-block align-bottom" title={doc.allowed_emails}>{doc.allowed_emails}</span></span>}
-                                   <span>Admin: <span className="text-slate-300">{doc.admin_id}</span></span>
+                                   {doc.expire_date && <span className="text-amber-600 dark:text-amber-400/80">Expires: {doc.expire_date}</span>}
+                                   <span>Dept: <span className="text-slate-700 dark:text-slate-300">{doc.department || 'General'}</span></span>
+                                   {doc.allowed_groups && <span>Groups: <span className="text-slate-700 dark:text-slate-300 max-w-[150px] inline-block align-bottom leading-tight">{doc.allowed_groups}</span></span>}
+                                   {doc.allowed_emails && <span>Emails: <span className="text-slate-700 dark:text-slate-300 truncate max-w-[100px] inline-block align-bottom" title={doc.allowed_emails}>{doc.allowed_emails}</span></span>}
+                                   <span>Admin: <span className="text-slate-700 dark:text-slate-300">{doc.admin_id}</span></span>
                                    
                                    <button onClick={(e) => {
                                       e.stopPropagation(); setEditingDoc(doc.id); setEditFilename(doc.filename); setEditStart(doc.start_date||''); setEditExpire(doc.expire_date||''); setEditDepartment(doc.department || 'General'); setEditAllowedEmails(doc.allowed_emails || ''); setEditAllowedGroups(doc.allowed_groups ? doc.allowed_groups.split(',') : []);
-                                   }} className="text-brand-300 hover:text-brand-200 bg-brand-900/20 px-2 py-1 rounded transition-colors break-keep whitespace-nowrap"><Edit className="w-3 h-3 inline mr-1"/>Edit</button>
-                                   <button onClick={(e) => { e.stopPropagation(); handleDelete(doc.filename); }} className="text-red-400 hover:text-red-300 bg-red-900/20 px-2 py-1 rounded transition-colors break-keep whitespace-nowrap"><Trash2 className="w-3 h-3 inline mr-1"/>Delete</button>
+                                   }} className="text-brand-600 dark:text-brand-300 hover:text-brand-500 hover:dark:text-brand-200 bg-brand-50/50 dark:bg-brand-900/20 px-2 py-1 rounded transition-colors break-keep whitespace-nowrap border border-brand-200/50 dark:border-transparent"><Edit className="w-3 h-3 inline mr-1"/>Edit</button>
+                                   <button onClick={(e) => { e.stopPropagation(); handleDelete(doc.filename); }} className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 bg-red-50/50 dark:bg-red-900/20 px-2 py-1 rounded transition-colors break-keep whitespace-nowrap border border-red-200/50 dark:border-transparent"><Trash2 className="w-3 h-3 inline mr-1"/>Delete</button>
                                </div>
                              )}
                          </div>
                          
                          {isEditing && (
-                            <div className="p-5 bg-dark-800/80 border-b border-white/5 w-full">
+                            <div className="p-5 bg-white/50 dark:bg-dark-800/80 border-b border-slate-200 dark:border-white/5 w-full">
                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                    <div>
-                                     <label className="block text-[10px] font-medium text-slate-400 mb-1">Start Date</label>
-                                     <input type="date" value={editStart} onChange={e=>setEditStart(e.target.value)} className="bg-dark-700 border border-white/10 rounded px-2 h-8 w-full text-white text-xs"/>
+                                     <label className="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-1">Start Date</label>
+                                     <input type="date" value={editStart} onChange={e=>setEditStart(e.target.value)} className="bg-white dark:bg-dark-700 border border-slate-200 dark:border-white/10 rounded px-2 h-8 w-full text-slate-800 dark:text-white text-xs"/>
                                    </div>
                                    <div>
-                                     <label className="block text-[10px] font-medium text-slate-400 mb-1">Expire Date</label>
-                                     <input type="date" value={editExpire} onChange={e=>setEditExpire(e.target.value)} className="bg-dark-700 border border-white/10 rounded px-2 h-8 w-full text-white text-xs"/>
+                                     <label className="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-1">Expire Date</label>
+                                     <input type="date" value={editExpire} onChange={e=>setEditExpire(e.target.value)} className="bg-white dark:bg-dark-700 border border-slate-200 dark:border-white/10 rounded px-2 h-8 w-full text-slate-800 dark:text-white text-xs"/>
                                    </div>
                                </div>
                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                                    <div>
-                                     <label className="block text-[10px] font-medium text-slate-400 mb-1">Target Department</label>
-                                     <select value={editDepartment} onChange={e=>setEditDepartment(e.target.value)} className="bg-dark-700 border border-white/10 rounded px-2 h-8 w-full text-white text-xs">
+                                     <label className="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-1">Target Department</label>
+                                     <select value={editDepartment} onChange={e=>setEditDepartment(e.target.value)} className="bg-white dark:bg-dark-700 border border-slate-200 dark:border-white/10 rounded px-2 h-8 w-full text-slate-800 dark:text-white text-xs">
                                         <option value="General">General / Other</option>
                                         <option value="RESTRICTED / PRIVATE">RESTRICTED / PRIVATE (Emails only)</option>
                                         <option value="AUDIT">AUDIT</option>
@@ -980,13 +976,13 @@ export default function AdminDashboard({ user, role }) {
                                      </select>
                                    </div>
                                    <div>
-                                     <label className="block text-[10px] font-medium text-slate-400 mb-1">Allowed Emails (Comma separated)</label>
-                                     <input type="text" value={editAllowedEmails} onChange={e=>setEditAllowedEmails(e.target.value)} placeholder="e.g. user1@enterprise.com" className="bg-dark-700 border border-white/10 rounded px-2 h-8 w-full text-white text-xs"/>
+                                     <label className="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-1">Allowed Emails (Comma separated)</label>
+                                     <input type="text" value={editAllowedEmails} onChange={e=>setEditAllowedEmails(e.target.value)} placeholder="e.g. user1@enterprise.com" className="bg-white dark:bg-dark-700 border border-slate-200 dark:border-white/10 rounded px-2 h-8 w-full text-slate-800 dark:text-white text-xs"/>
                                    </div>
                                </div>
                                <div className="w-full mb-5">
-                                 <label className="block text-[10px] font-medium text-slate-400 mb-2">Access Control Groups</label>
-                                 <div className="flex flex-wrap gap-2.5 bg-dark-900/50 p-4 rounded-xl border border-white/5">
+                                 <label className="block text-[10px] font-medium text-slate-500 dark:text-slate-400 mb-2">Access Control Groups</label>
+                                 <div className="flex flex-wrap gap-2.5 bg-slate-100/50 dark:bg-dark-900/50 p-4 rounded-xl border border-slate-200 dark:border-white/5">
                                     {accessGroupsList.map(group => {
                                        const isSelected = editAllowedGroups.includes(group);
                                        return (
@@ -1010,21 +1006,20 @@ export default function AdminDashboard({ user, role }) {
                                     )})}
                                  </div>
                                </div>
-                               
-                               <div className="flex gap-2 w-full justify-end mt-4 pt-4 border-t border-white/5">
-                                 <button onClick={() => setEditingDoc(null)} className="text-slate-300 hover:text-white bg-dark-700 hover:bg-dark-600 px-4 py-2 rounded-lg transition-colors text-xs font-semibold">Cancel</button>
-                                 <button onClick={() => handleSaveDoc(doc)} className="text-emerald-400 hover:text-emerald-300 bg-emerald-900/40 hover:bg-emerald-900/60 px-5 py-2 rounded-lg transition-colors text-xs font-semibold flex items-center shadow-lg shadow-emerald-900/20"><Save className="w-4 h-4 mr-1.5"/>Save Changes</button>
+                                                           <div className="flex gap-2 w-full justify-end mt-4 pt-4 border-t border-slate-200 dark:border-white/5">
+                                 <button onClick={() => setEditingDoc(null)} className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-200/50 dark:bg-dark-700 hover:bg-slate-300 dark:hover:bg-dark-600 px-4 py-2 rounded-lg transition-colors text-xs font-semibold">Cancel</button>
+                                 <button onClick={() => handleSaveDoc(doc)} className="text-emerald-500 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-900/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 px-5 py-2 rounded-lg transition-colors text-xs font-semibold flex items-center shadow-lg shadow-emerald-900/20 border border-emerald-200/50 dark:border-transparent"><Save className="w-4 h-4 mr-1.5"/>Save Changes</button>
                                </div>
                             </div>
                          )}
                          
                          {isExpanded && (
-                           <div className="p-2 overflow-x-auto max-h-80 overflow-y-auto animate-fade-in bg-dark-900/50 w-full block">
-                                <table className="w-full text-left text-xs text-slate-400">
-                                  <tbody className="divide-y divide-white/5 w-full block">
+                           <div className="p-2 overflow-x-auto max-h-80 overflow-y-auto animate-fade-in bg-slate-100/50 dark:bg-dark-900/50 w-full block">
+                                <table className="w-full text-left text-xs text-slate-600 dark:text-slate-400">
+                                  <tbody className="divide-y divide-slate-200 dark:divide-white/5 w-full block">
                                     {docChunks.map((c, i) => (
-                                        <tr key={i} className="hover:bg-white/5 transition-colors flex w-full">
-                                            <td className="px-3 py-2 whitespace-nowrap align-top text-brand-200 border-r border-white/5 w-20 shrink-0">Page {c.metadata?.page !== undefined ? c.metadata.page + 1 : '-'}</td>
+                                        <tr key={i} className="hover:bg-slate-200/50 dark:hover:bg-white/5 transition-colors flex w-full">
+                                            <td className="px-3 py-2 whitespace-nowrap align-top text-brand-600 dark:text-brand-200 border-r border-slate-200 dark:border-white/5 w-20 shrink-0">Page {c.metadata?.page !== undefined ? c.metadata.page + 1 : '-'}</td>
                                             <td className="px-3 py-2 opacity-90 leading-relaxed flex-1 whitespace-pre-wrap">{c.text}</td>
                                         </tr>
                                     ))}

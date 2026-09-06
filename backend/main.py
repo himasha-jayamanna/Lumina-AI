@@ -225,6 +225,8 @@ def ensure_audit_table():
         except: pass
         try: cursor.execute("ALTER TABLE Accounts ADD PreferredName NVARCHAR(100) NULL")
         except: pass
+        try: cursor.execute("ALTER TABLE Accounts ADD Email NVARCHAR(200) NULL")
+        except: pass
         try: cursor.execute("ALTER TABLE AuditTrail ADD PinnedAt DATETIME NULL")
         except: pass
         try: cursor.execute("ALTER TABLE AuditTrail ADD SessionTitle NVARCHAR(255) NULL")
@@ -323,8 +325,7 @@ def researcher_node(state: AgentState) -> AgentState:
         
     results = vs.similarity_search_with_score(state["query"], **search_kwargs)
     
-    # 2. Distance Threshold Guardrail (Blocks off-topic queries locally)
-    # Increased threshold for Vertex AI text-embedding-004 metric ranges
+    # Distance Threshold Guardrail (Blocks off-topic queries locally)
     DISTANCE_THRESHOLD = 1.2
     
     if not results or results[0][1] > DISTANCE_THRESHOLD:
@@ -1140,7 +1141,7 @@ async def login(req: Dict[str, str]):
             "name": row[2], 
             "emp_num": row[0],
             "preferred_name": row[5] or row[2],
-            "is_first_login": False
+            "is_first_login": row[4] == 0 or row[4] is None
         }
     finally: conn.close()
 
@@ -1150,7 +1151,7 @@ async def google_sso(req: Dict[str, str]):
     try:
         from google.oauth2 import id_token
         from google.auth.transport import requests as grequests
-        GOOGLE_CLIENT_ID = "244353936870-4bft7oc0tlei7of6e8nl3jg30pjm67k5.apps.googleusercontent.com"
+        GOOGLE_CLIENT_ID = "1048862575119-c5jq9vf2s0pkpe72v40b40up6k9emdtt.apps.googleusercontent.com"
         idinfo = id_token.verify_oauth2_token(req['credential'], grequests.Request(), GOOGLE_CLIENT_ID, clock_skew_in_seconds=60)
         email = idinfo.get('email', '')
         if email: email = email.lower().strip()
@@ -1158,9 +1159,7 @@ async def google_sso(req: Dict[str, str]):
         name  = idinfo.get('name')
         if not name: name = "Enterprise User"
         
-        # Restrict to Enterprise domain only
-        if not email.endswith('@enterprise.com'):
-            raise HTTPException(status_code=403, detail="Access denied. Only @enterprise.com accounts are allowed.")
+        # Domain restriction has been removed to allow @gmail.com accounts
     except HTTPException:
         raise
     except Exception as e:
@@ -1192,7 +1191,7 @@ async def google_sso(req: Dict[str, str]):
         auto_dept_str = ", ".join(auto_departments) if auto_departments else None
 
         # Check if user already exists
-        cursor.execute("SELECT Username, Role, Name, PreferredName, Department FROM Accounts WHERE Username=?", email)
+        cursor.execute("SELECT Username, Role, Name, PreferredName, Department, IsRegistered FROM Accounts WHERE Email=? OR Username=?", email, email)
         row = cursor.fetchone()
         if row:
             # Existing user — update department from Google Groups if available
@@ -1208,27 +1207,12 @@ async def google_sso(req: Dict[str, str]):
                 "preferred_name": row[3] or row[2],
                 "department": final_dept,
                 "email": email,
-                "is_first_login": False
+                "is_first_login": row[5] == 0 or row[5] is None
             }
         else:
-            # New Enterprise employee — auto-create account with auto-detected department
-            username = email
-            cursor.execute(
-                "INSERT INTO Accounts (Username, Role, Name, PreferredName, IsRegistered, Department) VALUES (?, ?, ?, ?, ?, ?)",
-                username, 'user', name, name.split(' ')[0], 1, auto_dept_str
-            )
-            conn.commit()
-            logger.info(f"New SSO user auto-created: {email} | Departments: {auto_dept_str}")
-            return {
-                "username": username,
-                "role": "user",
-                "name": name,
-                "emp_num": username,
-                "preferred_name": name.split(' ')[0],
-                "department": auto_dept_str or "",
-                "email": email,
-                "is_first_login": False
-            }
+            # Deny access if account is not pre-created by Admin
+            logger.warning(f"Failed SSO attempt for uncreated account: {email}")
+            raise HTTPException(status_code=403, detail="Access Denied. Your account has not been created by an Administrator.")
     finally:
         conn.close()
 
@@ -1330,8 +1314,8 @@ async def list_users():
     if not conn: return []
     try:
         cursor = conn.cursor()
-        cursor.execute("SELECT Username, Name, Role, PreferredName, Department FROM Accounts")
-        return [{"username": r[0], "name": r[1], "role": r[2], "preferred_name": r[3], "department": r[4] or ""} for r in cursor.fetchall()]
+        cursor.execute("SELECT Username, Name, Role, PreferredName, Department, Email FROM Accounts")
+        return [{"username": r[0], "name": r[1], "role": r[2], "preferred_name": r[3], "department": r[4] or "", "email": r[5] or ""} for r in cursor.fetchall()]
     finally: conn.close()
 
 @app.post("/admin/account")
@@ -1340,9 +1324,11 @@ async def add_user(user_data: Dict[str, str]):
     conn = get_db_connection()
     try:
         cursor = conn.cursor()
-        # Insert with NULL password and IsRegistered=0 to allow them to register themselves
-        cursor.execute("INSERT INTO Accounts (Username, Password, Role, Name, Department, IsRegistered) VALUES (?, NULL, ?, ?, ?, 0)",
-                       user_data["username"], user_data["role"], user_data["name"], user_data.get("department", ""))
+        # Insert with admin-provided default password and IsRegistered=0
+        pwd = user_data.get("password", "admin123")
+        default_hash = hash_password(pwd)
+        cursor.execute("INSERT INTO Accounts (Username, Password, Role, Name, Department, IsRegistered, Email) VALUES (?, ?, ?, ?, ?, 0, ?)",
+                       user_data["username"], default_hash, user_data["role"], user_data["name"], user_data.get("department", ""), user_data.get("email", ""))
         
         conn.commit()
         return {"message": "User authorized successfully. They can now register using their Employee Number."}

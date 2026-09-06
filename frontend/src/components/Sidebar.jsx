@@ -106,14 +106,12 @@ export default function Sidebar({
   const isSidebarExpanded = activeView === 'admin' ? true : isOpen;
 
   return (
-    <aside className={`flex flex-col h-screen overflow-hidden bg-dark-800 border-r border-white/10 shrink-0 z-20 transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'w-72' : 'w-[88px]'}`}>
+    <aside className={`flex flex-col h-screen overflow-hidden bg-slate-100 dark:bg-dark-800 border-r border-slate-200 dark:border-white/10 shrink-0 z-20 transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'w-72' : 'w-[88px]'}`}>
       {/* Logo Area */}
-      <div className="flex flex-col items-center gap-3 px-4 py-6 border-b border-white/5 bg-dark-900/20">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-brand-500/20 text-white font-bold text-lg border border-white/20">
-          EP
-        </div>
-        <div className={`mt-4 text-center transition-all duration-300 ${isSidebarExpanded ? 'opacity-100 max-h-20' : 'opacity-0 max-h-0 overflow-hidden m-0'}`}>
-          <p className="font-logo text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-300 via-indigo-300 to-purple-300 tracking-tight whitespace-nowrap">Enterprise Policy Assistant</p>
+      <div className="flex flex-col items-center gap-3 px-4 py-6 border-b border-slate-200 dark:border-white/5 bg-slate-200/50 dark:bg-dark-950/20 transition-colors">
+        <img src="/logo.jpg" alt="Lumina" className="w-[42px] h-[42px] rounded-full drop-shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:scale-105 transition-transform" />
+        <div className={`mt-2 text-center transition-all duration-300 ${isSidebarExpanded ? 'opacity-100 max-h-20' : 'opacity-0 max-h-0 overflow-hidden m-0'}`}>
+          <p className="font-display text-[15px] font-bold text-slate-800 dark:text-white tracking-widest uppercase">Lumina <span className="text-brand-500 dark:text-brand-400">AI</span></p>
         </div>
         {activeView === 'chat' && (
           <button 
@@ -128,10 +126,10 @@ export default function Sidebar({
 
       {/* Navigation Switcher (ONLY FOR PRIVILEGED USERS IN CHAT VIEW) */}
       {activeView === 'chat' && user && (user.role === 'master' || user.role === 'admin' || user.role === 'subadmin' || user.role === 'account_admin') && (
-        <div className={`px-4 py-3 border-b border-white/5 bg-brand-600/5 transition-opacity duration-300 ${isSidebarExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none hidden'}`}>
+        <div className={`px-4 py-3 border-b border-slate-200 dark:border-white/5 bg-brand-600/5 transition-opacity duration-300 ${isSidebarExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none hidden'}`}>
            <button 
              onClick={() => onViewChange('admin')}
-             className="true-color w-full py-2.5 bg-white border border-[#5D419B] rounded-xl text-xs font-black text-[#5D419B] tracking-wide hover:bg-[#F3E8FF] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-lg whitespace-nowrap"
+             className="true-color w-full py-2.5 bg-white dark:bg-brand-500/10 border border-brand-500 rounded-xl text-xs font-black text-brand-600 dark:text-brand-400 tracking-wide hover:bg-brand-50 hover:dark:bg-brand-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-lg whitespace-nowrap"
            >
              Switch to Admin View
            </button>
@@ -141,7 +139,7 @@ export default function Sidebar({
       {/* Dynamic Content Area (History/Library - ONLY IN CHAT VIEW) */}
       {activeView === 'chat' ? (
         <div className={`flex flex-col flex-1 overflow-hidden transition-opacity duration-300 ${isSidebarExpanded ? 'opacity-100' : 'opacity-0 hidden pointer-events-none'}`}>
-          <div className="p-3 border-b border-white/5">
+          <div className="p-3 border-b border-slate-200 dark:border-white/5">
             <button 
                onClick={() => { if(onNewChat) onNewChat(); }}
                className="btn-primary w-full flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all font-bold text-sm shadow-sm tracking-wide"
@@ -150,16 +148,16 @@ export default function Sidebar({
                New chat
             </button>
           </div>
-          <div className="flex items-center gap-1 p-2 border-b border-white/5 select-none bg-dark-900/10">
+          <div className="flex items-center gap-1 p-2 border-b border-slate-200 dark:border-white/5 select-none bg-slate-200/50 dark:bg-dark-900/10">
              <button 
                onClick={()=>setLeftTab('history')} 
-               className={`flex-1 py-1.5 text-sm font-bold rounded transition-colors whitespace-nowrap ${leftTab==='history' ? 'bg-brand-600/20 text-brand-300' : 'text-slate-500 hover:bg-white/5'}`}
+               className={`flex-1 py-1.5 text-sm font-bold rounded transition-colors whitespace-nowrap ${leftTab==='history' ? 'bg-brand-600/20 text-brand-600 dark:text-brand-300' : 'text-slate-500 hover:bg-slate-300/50 dark:hover:bg-white/5'}`}
              >
                Past Chats
              </button>
              <button 
                onClick={()=>setLeftTab('library')} 
-               className={`flex-1 py-1.5 text-sm font-bold rounded transition-colors whitespace-nowrap ${leftTab==='library' ? 'bg-brand-600/20 text-brand-300' : 'text-slate-500 hover:bg-white/5'}`}
+               className={`flex-1 py-1.5 text-sm font-bold rounded transition-colors whitespace-nowrap ${leftTab==='library' ? 'bg-brand-600/20 text-brand-600 dark:text-brand-300' : 'text-slate-500 hover:bg-slate-300/50 dark:hover:bg-white/5'}`}
              >
                Library
              </button>
@@ -173,7 +171,7 @@ export default function Sidebar({
                    placeholder="Search chats..."
                    value={historySearch}
                    onChange={e => setHistorySearch(e.target.value)}
-                   className="input-field text-xs py-2 px-3 w-full bg-dark-900 border-white/5 placeholder-slate-600"
+                   className="input-field text-xs py-2 px-3 w-full bg-slate-100/50 dark:bg-dark-900 border-slate-200 dark:border-white/5 placeholder-slate-400 dark:placeholder-slate-600"
                 />
                 <div className="space-y-2">
                   {filteredSessionList.map(sId => {
@@ -185,8 +183,8 @@ export default function Sidebar({
                         key={sId}
                         className={`group relative p-2.5 rounded-xl border transition-all cursor-pointer ${
                           isActive 
-                            ? 'bg-brand-600/10 border-brand-500/40 shadow-sm' 
-                            : 'bg-white/2 border-white/5 hover:bg-white/5'
+                            ? 'bg-brand-500/10 dark:bg-brand-600/10 border-brand-500/40 shadow-sm' 
+                            : 'bg-white/60 dark:bg-dark-900/20 border-slate-200 dark:border-white/5 hover:bg-brand-50 dark:hover:bg-brand-600/10'
                         }`}
                         onClick={() => {
                           const restoredMsgs = [];
@@ -203,7 +201,7 @@ export default function Sidebar({
                           <div className="flex items-center gap-1">
                             <input 
                               autoFocus 
-                              className="bg-dark-900 text-[10px] w-full p-1 rounded border border-brand-500"
+                              className="bg-white dark:bg-dark-900 text-[10px] text-slate-800 dark:text-slate-200 w-full p-1 rounded border border-brand-500 focus:outline-none"
                               value={editingSessionTitle}
                               onChange={e => setEditingSessionTitle(e.target.value)}
                               onKeyDown={e => e.key === 'Enter' && handleRenameSubmit(sId)}
@@ -213,8 +211,8 @@ export default function Sidebar({
                         ) : (
                           <>
                             <div className="flex justify-between items-start">
-                              <p className="text-xs text-slate-300 line-clamp-2 pr-6 leading-relaxed font-normal">
-                                {firstQ.pinned_at && <Pin className="w-3 h-3 inline mr-1 text-amber-400 rotate-45" />}
+                              <p className="text-xs text-slate-800 dark:text-slate-300 line-clamp-2 pr-6 leading-relaxed font-normal">
+                                {firstQ.pinned_at && <Pin className="w-3 h-3 inline mr-1 text-amber-500 dark:text-amber-400 rotate-45" />}
                                 {firstQ.session_title || firstQ.query}
                               </p>
                             </div>
@@ -234,18 +232,18 @@ export default function Sidebar({
                                  );
                               })()}
                             </div>
-                            <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 group/menu">
-                              <button className="p-1 text-slate-400 hover:text-white" onClick={e => e.stopPropagation()}>
+                             <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 group/menu">
+                              <button className="p-1 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-white transition-colors" onClick={e => e.stopPropagation()}>
                                 <MoreVertical className="w-4 h-4"/>
                               </button>
-                              <div className="absolute right-0 top-full bg-dark-800 border border-white/10 rounded-lg shadow-xl opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all flex flex-col min-w-[110px] overflow-hidden">
-                                <button onClick={(e) => handleTogglePin(e, sId, !!firstQ.pinned_at)} className="flex items-center gap-2 px-3 py-2.5 text-xs text-slate-300 hover:bg-white/5 text-left w-full">
+                              <div className="absolute right-0 top-full bg-white dark:bg-dark-800 border border-slate-200 dark:border-white/10 rounded-lg shadow-xl opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all flex flex-col min-w-[110px] overflow-hidden">
+                                <button onClick={(e) => handleTogglePin(e, sId, !!firstQ.pinned_at)} className="flex items-center gap-2 px-3 py-2.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 text-left w-full transition-colors">
                                   <Pin className="w-3 h-3"/> {firstQ.pinned_at ? "Unpin" : "Pin"}
                                 </button>
-                                <button onClick={(e) => { e.stopPropagation(); setEditingSessionTitle(firstQ.session_title || firstQ.query); setEditingSessionId(sId); }} className="flex items-center gap-2 px-3 py-2.5 text-xs text-slate-300 hover:bg-white/5 text-left w-full">
+                                <button onClick={(e) => { e.stopPropagation(); setEditingSessionTitle(firstQ.session_title || firstQ.query); setEditingSessionId(sId); }} className="flex items-center gap-2 px-3 py-2.5 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 text-left w-full transition-colors">
                                   <Edit2 className="w-3 h-3"/> Rename
                                 </button>
-                                <button onClick={(e) => handleDelete(e, sId)} className="flex items-center gap-2 px-3 py-2.5 text-xs text-red-400 hover:bg-red-500/10 text-left w-full border-t border-white/5">
+                                <button onClick={(e) => handleDelete(e, sId)} className="flex items-center gap-2 px-3 py-2.5 text-xs text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 text-left w-full border-t border-slate-200 dark:border-white/5 transition-colors">
                                   <Trash2 className="w-3 h-3"/> Delete
                                 </button>
                               </div>
@@ -275,34 +273,34 @@ export default function Sidebar({
                   const isExpanded = !!expandedDepts[dept];
                   
                   return (
-                    <div key={dept} className="flex flex-col border border-white/5 rounded-xl bg-white/2 overflow-hidden shadow-sm shadow-black/20">
+                    <div key={dept} className="flex flex-col border border-slate-200 dark:border-white/5 rounded-xl bg-slate-50 dark:bg-dark-900/40 overflow-hidden shadow-sm dark:shadow-none">
                       <button 
                         onClick={() => setExpandedDepts(prev => ({ ...prev, [dept]: !prev[dept] }))}
-                        className={`flex items-center justify-between px-3 py-3 text-xs font-medium uppercase tracking-widest transition-all duration-300 ${isExpanded ? 'bg-brand-600/30 text-brand-300' : 'text-slate-400 hover:bg-white/5'}`}
+                        className={`flex items-center justify-between px-3 py-3 text-xs font-bold uppercase tracking-widest transition-all duration-300 ${isExpanded ? 'bg-brand-50 dark:bg-brand-600/30 text-brand-600 dark:text-brand-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/5'}`}
                       >
                         <div className="flex items-center gap-2 flex-1 overflow-hidden text-left">
                            <LayoutDashboard className={`w-4 h-4 shrink-0 transition-transform duration-300 ${isExpanded ? 'scale-110' : 'opacity-40'}`} />
                            <span className="truncate" title={dept}>{dept}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                           <span className="text-[10px] bg-dark-900/50 px-1.5 py-0.5 rounded-md border border-white/10">{docsInDept.length}</span>
-                           <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-brand-400' : 'text-slate-600'}`} />
+                           <span className="text-[10px] bg-slate-200 dark:bg-dark-900/50 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded-md border border-slate-300 dark:border-white/10">{docsInDept.length}</span>
+                           <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-brand-500 dark:text-brand-400' : 'text-slate-400 dark:text-slate-600'}`} />
                         </div>
                       </button>
                       
                       {isExpanded && (
-                        <div className="flex flex-col border-t border-white/5 bg-dark-900/40 animate-fade-in">
+                        <div className="flex flex-col border-t border-slate-200 dark:border-white/5 bg-white dark:bg-dark-900/40 animate-fade-in">
                           {docsInDept.map(doc => (
                             <button 
                               key={doc.id} 
                               onClick={() => onViewPdf(`${API_URL}/uploads/${doc.filename}`)}
-                              className="flex w-full items-center gap-3 p-3 hover:bg-brand-600/10 transition-all group border-b border-white/5 last:border-0 text-left"
+                              className="flex w-full items-center gap-3 p-3 hover:bg-brand-50 dark:hover:bg-brand-600/10 transition-all group border-b border-slate-100 dark:border-white/5 last:border-0 text-left"
                             >
-                              <div className="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
-                                <FileText className="w-3.5 h-3.5 text-emerald-500/60" />
+                              <div className="w-6 h-6 rounded-lg bg-brand-500/10 dark:bg-emerald-500/10 flex items-center justify-center group-hover:bg-brand-500/20 dark:group-hover:bg-emerald-500/20 transition-colors">
+                                <FileText className="w-3.5 h-3.5 text-brand-500/80 dark:text-emerald-500/60" />
                               </div>
-                              <span className="text-[11px] text-slate-400 truncate flex-1 font-semibold group-hover:text-slate-200" title={doc.filename}>{doc.filename}</span>
-                              <Eye className="w-3.5 h-3.5 text-slate-600 group-hover:text-emerald-400 transition-colors" />
+                              <span className="text-[11px] text-slate-700 dark:text-slate-400 truncate flex-1 font-semibold group-hover:text-brand-700 dark:group-hover:text-slate-200" title={doc.filename}>{doc.filename}</span>
+                              <Eye className="w-3.5 h-3.5 text-slate-400 dark:text-slate-600 group-hover:text-brand-500 dark:group-hover:text-emerald-400 transition-colors" />
                             </button>
                           ))}
                         </div>
@@ -321,12 +319,12 @@ export default function Sidebar({
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-dark-900/20">
+        <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-slate-200/50 dark:bg-dark-900/20">
            <div className="w-16 h-16 rounded-3xl bg-brand-600/10 border border-brand-500/20 flex items-center justify-center mb-4">
-              <LayoutDashboard className="w-8 h-8 text-brand-400" />
+              <LayoutDashboard className="w-8 h-8 text-brand-500 dark:text-brand-400" />
            </div>
-           <p className="text-xs font-bold text-white uppercase tracking-widest mb-1">Admin Mode</p>
-           <p className="text-[10px] text-slate-500 leading-relaxed mb-8 px-4">Chat history and library are disabled while managing the system.</p>
+           <p className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-widest mb-1">Admin Mode</p>
+           <p className="text-[10px] text-slate-600 dark:text-slate-500 leading-relaxed mb-8 px-4">Chat history and library are disabled while managing the system.</p>
            
            <div className="w-full px-2">
               <button 
@@ -340,14 +338,14 @@ export default function Sidebar({
       )}
 
       {/* User Profile Area */}
-      <div className={`mt-auto border-t border-white/5 bg-dark-900/30 transition-all duration-300 ${isSidebarExpanded ? 'p-4' : 'p-3 flex flex-col items-center gap-3'} relative`}>
+      <div className={`mt-auto border-t border-slate-200 dark:border-white/5 bg-slate-200/30 dark:bg-dark-900/30 transition-all duration-300 ${isSidebarExpanded ? 'p-4' : 'p-3 flex flex-col items-center gap-3'} relative`}>
         <div className={`flex ${isSidebarExpanded ? 'items-center justify-between' : 'flex-col items-center gap-3'}`}>
           <div className={`flex items-center gap-2.5 ${isSidebarExpanded ? '' : 'hidden'}`}>
             <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${getAvatarGradient(user?.username)} flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-lg border border-white/20`}>
               {(user?.preferred_name || user?.name || user?.username || '?').charAt(0).toUpperCase()}
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="text-sm font-medium text-white truncate max-w-[100px] leading-tight">{user?.preferred_name || user?.name || user?.username}</span>
+              <span className="text-sm font-medium text-slate-800 dark:text-white truncate max-w-[100px] leading-tight">{user?.preferred_name || user?.name || user?.username}</span>
               <span className="text-[10px] text-slate-500 uppercase tracking-tighter mt-0.5">{user?.role}</span>
             </div>
           </div>
@@ -355,7 +353,7 @@ export default function Sidebar({
           <div className="relative">
              <button 
               onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-              className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition group flex-shrink-0 text-slate-400 hover:text-white"
+              className="p-2.5 rounded-xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 hover:bg-slate-300/50 dark:hover:bg-white/10 transition group flex-shrink-0 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white"
               title="Settings"
             >
               <Settings className={`w-4 h-4 transition-transform duration-300 ${isSettingsOpen ? 'rotate-90 text-white' : ''}`} />
@@ -365,7 +363,7 @@ export default function Sidebar({
             {isSettingsOpen && (
                <>
                  <div className="fixed inset-0 z-40" onClick={() => setIsSettingsOpen(false)} />
-                 <div className={`absolute bottom-full mb-3 w-44 bg-dark-800 border border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 z-50 animate-slide-up ${isSidebarExpanded ? 'right-0' : 'left-0'}`}>
+                 <div className={`absolute bottom-full mb-3 w-44 bg-white dark:bg-dark-800 border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl p-2 flex flex-col gap-1 z-50 animate-slide-up ${isSidebarExpanded ? 'right-0' : 'left-0'}`}>
                     <button 
                       onClick={() => { 
                         if (user?.role !== 'user') {
@@ -374,7 +372,7 @@ export default function Sidebar({
                         }
                       }}
                       disabled={user?.role === 'user'}
-                      className={`w-full flex items-center justify-between px-3 py-2 mb-1 group rounded-xl transition-all ${user?.role === 'user' ? 'opacity-40 cursor-not-allowed blur-[0.5px] grayscale' : 'cursor-pointer hover:bg-white/5'}`}
+                      className={`w-full flex items-center justify-between px-3 py-2 mb-1 group rounded-xl transition-all ${user?.role === 'user' ? 'opacity-40 cursor-not-allowed blur-[0.5px] grayscale' : 'cursor-pointer hover:bg-slate-100 dark:hover:bg-white/5'}`}
                       title={user?.role === 'user' ? "Access restricted" : ""}
                     >
                       <span className={`text-sm font-normal transition-colors ${user?.role === 'user' ? 'text-slate-500' : 'text-slate-300 group-hover:text-white'}`}>
@@ -391,14 +389,14 @@ export default function Sidebar({
                     </button>
                     <div 
                       onClick={(e) => { e.stopPropagation(); onToggleTheme(); }}
-                      className="flex items-center justify-between px-3 py-2 mb-1 group cursor-pointer hover:bg-white/5 rounded-xl transition-colors"
+                      className="flex items-center justify-between px-3 py-2 mb-1 group cursor-pointer hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-colors"
                     >
-                      <span className="text-sm font-normal text-slate-300 group-hover:text-white transition-colors">
+                      <span className="text-sm font-normal text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                         {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
                       </span>
                       <div
                         className={`relative flex items-center h-6 w-11 rounded-full p-1 transition-colors duration-500 ${
-                          theme === 'dark' ? 'bg-brand-400/80' : 'bg-slate-500/50'
+                          theme === 'dark' ? 'bg-brand-400/80' : 'bg-brand-500'
                         }`}
                       >
                         <div

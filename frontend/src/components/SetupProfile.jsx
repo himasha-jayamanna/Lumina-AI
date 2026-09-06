@@ -162,7 +162,7 @@ export default function SetupProfile({ user, onComplete }) {
             <div className="grid grid-cols-1 gap-4">
               {/* Question 1 */}
               <div className="space-y-2">
-                <select value={q1} onChange={e=>setQ1(e.target.value)} className="input-field py-1.5 text-xs w-full bg-dark-800">
+                <select value={q1} onChange={e=>setQ1(e.target.value)} className="input-field py-1.5 text-xs w-full bg-white dark:bg-dark-800">
                   {SECURITY_QUESTIONS.map(q => <option key={q} value={q}>{q}</option>)}
                 </select>
                 <input type="text" value={a1} onChange={e=>setA1(e.target.value)} required placeholder="Your answer" className="input-field py-1.5 text-xs w-full" />
@@ -170,7 +170,7 @@ export default function SetupProfile({ user, onComplete }) {
 
               {/* Question 2 */}
               <div className="space-y-2">
-                <select value={q2} onChange={e=>setQ2(e.target.value)} className="input-field py-1.5 text-xs w-full bg-dark-800">
+                <select value={q2} onChange={e=>setQ2(e.target.value)} className="input-field py-1.5 text-xs w-full bg-white dark:bg-dark-800">
                   {SECURITY_QUESTIONS.map(q => <option key={q} value={q}>{q}</option>)}
                 </select>
                 <input type="text" value={a2} onChange={e=>setA2(e.target.value)} required placeholder="Your answer" className="input-field py-1.5 text-xs w-full" />
@@ -178,7 +178,7 @@ export default function SetupProfile({ user, onComplete }) {
 
               {/* Question 3 */}
               <div className="space-y-2">
-                <select value={q3} onChange={e=>setQ3(e.target.value)} className="input-field py-1.5 text-xs w-full bg-dark-800">
+                <select value={q3} onChange={e=>setQ3(e.target.value)} className="input-field py-1.5 text-xs w-full bg-white dark:bg-dark-800">
                   {SECURITY_QUESTIONS.map(q => <option key={q} value={q}>{q}</option>)}
                 </select>
                 <input type="text" value={a3} onChange={e=>setA3(e.target.value)} required placeholder="Your answer" className="input-field py-1.5 text-xs w-full" />

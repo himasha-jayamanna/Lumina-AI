@@ -8,8 +8,8 @@ import { API_URL } from '../api';
 export function TypingIndicator() {
   return (
     <div className="flex items-end gap-3 animate-fade-in">
-      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-600/20 border border-brand-500/30 flex-shrink-0">
-        <Bot className="w-4 h-4 text-brand-400" />
+      <div className="flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 dark:border-brand-500/20 bg-white/50 dark:bg-dark-900/50 flex-shrink-0">
+        <img src="/logo.jpg" alt="Lumina" className="w-[22px] h-[22px] rounded-full drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]" />
       </div>
       <div className="glass-card px-4 py-3">
         <div className="flex items-center gap-1.5">
@@ -102,7 +102,7 @@ export default function MessageBubble({ message, onEditSubmit, textSize = 'md', 
                  </div>
                </div>
             ) : (
-               <p className={`text-slate-100 leading-relaxed whitespace-pre-wrap ${textSizeClass}`}>{message.content}</p>
+               <p className={`text-slate-800 dark:text-slate-100 leading-relaxed whitespace-pre-wrap ${textSizeClass}`}>{message.content}</p>
             )}
           </div>
           {!isEditing && (
@@ -114,8 +114,8 @@ export default function MessageBubble({ message, onEditSubmit, textSize = 'md', 
               </div>
           )}
         </div>
-        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-700 border border-white/10 flex-shrink-0">
-          <User className="w-4 h-4 text-slate-300" />
+        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-white/10 flex-shrink-0">
+          <User className="w-4 h-4 text-slate-500 dark:text-slate-300" />
         </div>
       </div>
     );
@@ -158,8 +158,8 @@ export default function MessageBubble({ message, onEditSubmit, textSize = 'md', 
 
   return (
     <div className="flex items-end gap-3 animate-slide-up">
-      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-600/20 border border-brand-500/30 flex-shrink-0">
-        <Bot className="w-4 h-4 text-brand-400" />
+      <div className="flex items-center justify-center w-8 h-8 rounded-full border border-slate-200 dark:border-brand-500/20 bg-white/50 dark:bg-dark-900/50 flex-shrink-0">
+        <img src="/logo.jpg" alt="Lumina" className="w-[22px] h-[22px] rounded-full drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]" />
       </div>
       <div className="max-w-[78%]">
         <div className={`${aiBgClass} rounded-2xl rounded-bl-sm px-4 py-3.5 shadow-xl`}>
@@ -171,7 +171,7 @@ export default function MessageBubble({ message, onEditSubmit, textSize = 'md', 
           )}
 
           <div
-            className={`text-slate-200 leading-relaxed ai-prose ${textSizeClass === 'text-sm' ? 'text-sm' : textSizeClass === 'text-lg' ? 'text-lg' : 'text-base'}`}
+            className={`ai-prose ${textSizeClass === 'text-sm' ? 'text-sm' : textSizeClass === 'text-lg' ? 'text-lg' : 'text-base'}`}
             dangerouslySetInnerHTML={{ __html: formattedContent || '...' }}
           />
 
@@ -183,11 +183,11 @@ export default function MessageBubble({ message, onEditSubmit, textSize = 'md', 
                  {references.map((r, idx) => {
                    const pagesStr = r.pages.size > 0 ? `(Pages: ${Array.from(r.pages).join(', ')})` : '';
                    return (
-                     <li key={idx} className="flex items-center gap-2 bg-brand-950/30 border border-brand-800/30 rounded-lg px-3 py-1.5">
-                        <button onClick={() => onViewPdf(`${API_URL}/uploads/${encodeURIComponent(r.file)}`)} className="text-brand-400 hover:text-brand-300 hover:underline transition inline-flex items-center gap-1.5 font-medium text-xs">
+                     <li key={idx} className="flex items-center gap-2 bg-brand-50/50 dark:bg-brand-950/30 border border-brand-200/50 dark:border-brand-800/30 rounded-lg px-3 py-1.5">
+                        <button onClick={() => onViewPdf(`${API_URL}/uploads/${encodeURIComponent(r.file)}`)} className="text-brand-600 dark:text-brand-400 hover:text-brand-500 dark:hover:text-brand-300 hover:underline transition inline-flex items-center gap-1.5 font-medium text-xs">
                           {r.file}
                         </button>
-                        {pagesStr && <span className="ml-auto text-[10px] text-slate-500 tracking-wide bg-dark-700/60 px-2 py-0.5 rounded-full">{pagesStr}</span>}
+                        {pagesStr && <span className="ml-auto text-[10px] text-slate-500 tracking-wide bg-slate-200/60 dark:bg-dark-700/60 px-2 py-0.5 rounded-full">{pagesStr}</span>}
                      </li>
                    );
                  })}
@@ -196,12 +196,12 @@ export default function MessageBubble({ message, onEditSubmit, textSize = 'md', 
           )}
 
           {/* Meta and Copy Footer */}
-          <div className="flex flex-wrap items-center gap-2 mt-3 pt-2.5 border-t border-white/10">
+          <div className="flex flex-wrap items-center gap-2 mt-3 pt-2.5 border-t border-slate-200 dark:border-white/10">
 
             <div className="ml-auto flex items-center gap-3">
               <button 
                 onClick={handleCopy}
-                className={`p-1.5 rounded transition-all flex items-center justify-center ${copied ? 'text-brand-400 bg-brand-500/10' : 'text-slate-500 hover:text-brand-300 hover:bg-white/5'}`}
+                className={`p-1.5 rounded transition-all flex items-center justify-center ${copied ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10' : 'text-slate-400 dark:text-slate-500 hover:text-brand-500 dark:hover:text-brand-300 hover:bg-slate-100 dark:hover:bg-white/5'}`}
                 title={copied ? "Copied!" : "Copy answer"}
               >
                 {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}

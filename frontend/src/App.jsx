@@ -6,6 +6,7 @@ import ChatView      from './components/ChatView';
 import AdminDashboard from './components/AdminDashboard';
 import Register      from './components/Register';
 import ForgotPassword from './components/ForgotPassword';
+import SetupProfile from './components/SetupProfile';
 import { healthCheck, login, googleLogin } from './api';
 
 function LoginScreen({ onLogin, onForgotPassword, onRegister }) {
@@ -22,9 +23,12 @@ function LoginScreen({ onLogin, onForgotPassword, onRegister }) {
     setError('');
     try {
       const user = await login(username, password);
-      // Auto-route based on role
       const isPrivileged = user.role === 'master' || user.role === 'admin' || user.role === 'subadmin';
-      onLogin(user, isPrivileged ? 'admin' : 'chat');
+      if (user.is_first_login) {
+        onLogin(user, 'setup');
+      } else {
+        onLogin(user, isPrivileged ? 'admin' : 'chat');
+      }
     } catch (e) {
       setError(e.response?.data?.detail || 'Login failed. Invalid credentials.');
     } finally {
@@ -33,48 +37,52 @@ function LoginScreen({ onLogin, onForgotPassword, onRegister }) {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center p-8 w-full relative min-h-screen py-12 overflow-hidden" style={{ backgroundColor: '#ffffff' }}>
-      {/* Background Image shifted right using object-position instead of translate to avoid scrollbars/gaps */}
-      <img src="/login-bg.jpg" alt="background" className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none animate-slide-up-bg" style={{ objectPosition: 'calc(100% + 150px) center', backgroundColor: '#ffffff' }} />
+    <div className="flex flex-1 items-center justify-center p-8 w-full relative min-h-screen py-12 overflow-hidden bg-slate-50 dark:bg-dark-950">
+      {/* Background Mesh (New Premium Theme) */}
+      <div className="absolute inset-0 bg-mesh z-0"></div>
+      
+      {/* Dynamic Animated Blobs */}
+      <div className="absolute top-1/4 -left-32 w-[600px] h-[600px] rounded-full bg-brand-500/10 blur-[100px] pointer-events-none animate-float"></div>
+      <div className="absolute bottom-1/4 -right-32 w-[600px] h-[600px] rounded-full bg-indigo-500/10 blur-[100px] pointer-events-none animate-float" style={{ animationDelay: '-3s' }}></div>
 
-      {/* Login Box - Made dark so the white text is clearly readable against the white background */}
-      <div className="bg-dark-900/95 backdrop-blur-md p-8 w-full max-w-sm glow-ring animate-fade-in z-10 relative rounded-2xl border border-dark-700 shadow-2xl">
-        <div className="text-center mb-6">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-brand-500/20 text-white font-bold text-lg mb-4 mx-auto border border-white/20">
-          EP
-        </div>
-          <h2 className="text-2xl font-normal text-white tracking-tight">Enterprise Policy Assistant</h2>
-          <p className="text-sm text-slate-400 mt-1">Authorized Staff Access Only</p>
+      {/* Login Box */}
+      <div className="bg-white/80 dark:bg-dark-900/80 backdrop-blur-2xl border border-slate-200 dark:border-white/5 rounded-2xl shadow-2xl p-10 w-full max-w-sm animate-fade-in-up z-10 relative">
+        <div className="text-center mb-8">
+          <img src="/logo.jpg" alt="Lumina AI" className="w-16 h-16 mx-auto mb-4 rounded-full drop-shadow-[0_0_15px_rgba(6,182,212,0.4)]" />
+          <h2 className="text-2xl font-bold font-display text-slate-800 dark:text-white tracking-tight">Lumina AI</h2>
+          <p className="text-sm text-slate-500 dark:text-zinc-400 mt-1">Enterprise Agentic Workspace</p>
         </div>
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-[13px] text-slate-400 mb-1">Email Address</label>
-            <input type="text" name="username" autoComplete="username" value={username} onChange={e=>setUsername(e.target.value)} disabled={loading} required placeholder="e.g. name@enterprise.com" className="input-field py-2.5 text-base w-full" autoFocus />
+            <label className="block text-[13px] text-slate-600 dark:text-zinc-400 font-medium mb-1.5 ml-1">Employee Number</label>
+            <input type="text" name="username" autoComplete="username" value={username} onChange={e=>setUsername(e.target.value)} disabled={loading} required placeholder="e.g. EMP001" className="input-field" autoFocus />
           </div>
           <div className="relative">
-            <label className="block text-[13px] text-slate-400 mb-1">Password</label>
-            <input type={showPassword ? "text" : "password"} name="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} disabled={loading} required className="input-field py-2.5 text-base w-full pr-10" />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-[34px] text-slate-400 hover:text-white transition">
+            <label className="block text-[13px] text-slate-600 dark:text-zinc-400 font-medium mb-1.5 ml-1">Password</label>
+            <input type={showPassword ? "text" : "password"} name="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} disabled={loading} required placeholder="••••••••" className="input-field pr-10" />
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-[36px] text-slate-400 dark:text-zinc-500 hover:text-brand-500 dark:hover:text-white transition-colors">
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
-          <div className="flex justify-end items-center mt-2">
-            <button type="button" onClick={onForgotPassword} className="text-xs text-slate-400 hover:text-white underline transition">Forgot Password?</button>
+          <div className="flex justify-end items-center mb-6">
+            <button type="button" onClick={onForgotPassword} className="text-xs text-brand-400 hover:text-brand-300 font-medium transition-colors">Forgot Password?</button>
           </div>
-          {error && <div className="text-xs text-red-400 bg-red-900/20 border border-red-500/30 p-2 rounded">{error}</div>}
-          <button type="submit" disabled={loading} className="btn-primary w-full py-2.5 mt-2 rounded-lg font-medium shadow-sm transition">
-            {loading ? 'Authenticating...' : 'Sign In'}
+          
+          {error && <div className="text-xs text-red-400 bg-red-950/40 border border-red-500/20 p-2.5 rounded-lg mb-2">{error}</div>}
+          
+          <button type="submit" disabled={loading} className="btn-primary w-full py-3.5 mt-2 rounded-xl text-sm font-semibold tracking-wide flex items-center justify-center gap-2">
+            {loading ? <div className="typing-indicator"><div className="typing-dot bg-white"></div><div className="typing-dot bg-white"></div><div className="typing-dot bg-white"></div></div> : 'Sign In To Workspace'}
           </button>
 
           {/* Google SSO Divider */}
-          <div className="flex items-center gap-3 my-2">
-            <div className="flex-1 h-px bg-white/10"></div>
-            <span className="text-[11px] text-slate-500 font-medium">or</span>
-            <div className="flex-1 h-px bg-white/10"></div>
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px bg-slate-200 dark:bg-white/5"></div>
+            <span className="text-[11px] text-slate-400 dark:text-zinc-500 font-semibold tracking-widest uppercase">Or</span>
+            <div className="flex-1 h-px bg-slate-200 dark:bg-white/5"></div>
           </div>
 
-          {/* Google SSO Button */}
-          <div className="flex justify-center" id="google-sso-btn">
+           {/* Google SSO Button */}
+          <div className="flex justify-center transition-transform hover:scale-[1.02]" id="google-sso-btn">
             <GoogleLogin
               onSuccess={async (credentialResponse) => {
                 setLoading(true);
@@ -82,9 +90,13 @@ function LoginScreen({ onLogin, onForgotPassword, onRegister }) {
                 try {
                   const user = await googleLogin(credentialResponse.credential);
                   const isPrivileged = user.role === 'master' || user.role === 'admin' || user.role === 'subadmin';
-                  onLogin(user, isPrivileged ? 'admin' : 'chat');
+                  if (user.is_first_login) {
+                    onLogin(user, 'setup');
+                  } else {
+                    onLogin(user, isPrivileged ? 'admin' : 'chat');
+                  }
                 } catch (e) {
-                  setError(e.response?.data?.detail || 'Google Sign-In failed. Please use your @enterprise.com account.');
+                  setError(e.response?.data?.detail || 'Google SSO failed.');
                 } finally {
                   setLoading(false);
                 }
@@ -92,15 +104,10 @@ function LoginScreen({ onLogin, onForgotPassword, onRegister }) {
               onError={() => setError('Google Sign-In failed. Please try again.')}
               theme="filled_black"
               shape="rectangular"
-              text="signin_with_google"
+              text="continue_with"
               width="280"
+              logo_alignment="center"
             />
-          </div>
-          
-          <div className="text-center mt-8">
-            <p className="true-color text-[13px] font-medium text-[#B7371F] tracking-wide">
-              IT Help Desk Support : 2626
-            </p>
           </div>
         </form>
       </div>
@@ -190,10 +197,12 @@ export default function App() {
 
   // Apply theme to document
   useEffect(() => {
-    if (theme === 'light') {
-      document.documentElement.classList.add('light-theme');
-    } else {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light-theme');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light-theme');
     }
   }, [theme]);
 
@@ -298,7 +307,7 @@ export default function App() {
   };
 
   return (
-    <div className={`flex w-full h-screen overflow-hidden ${!user ? 'bg-white' : 'bg-dark-900'} text-white`} style={{ fontFamily: `"${fontStyle}", system-ui, sans-serif` }}>
+    <div className={`flex w-full h-screen overflow-hidden ${!user ? 'bg-slate-50 dark:bg-dark-950' : 'bg-slate-50 dark:bg-dark-900'} text-slate-800 dark:text-white transition-colors`} style={{ fontFamily: `"${fontStyle}", system-ui, sans-serif` }}>
       {/* Ambient gradient blobs (only show in dark mode / when logged in) */}
       {user && (
         <div aria-hidden className="pointer-events-none fixed inset-0 overflow-hidden">
@@ -326,7 +335,17 @@ export default function App() {
         <Register onBack={() => setView('chat')} onComplete={setUser} />
       )}
 
-      {user && (
+      {view === 'setup' && user && (
+        <div className="flex w-full h-screen items-center justify-center p-8 bg-slate-50 dark:bg-dark-950 relative z-50">
+          <SetupProfile user={user} onComplete={(updatedUser) => {
+            setUser(updatedUser);
+            const isPriv = updatedUser.role === 'master' || updatedUser.role === 'admin' || updatedUser.role === 'subadmin';
+            setView(isPriv ? 'admin' : 'chat');
+          }} />
+        </div>
+      )}
+
+      {user && view !== 'setup' && (
         <>
           <Sidebar 
             activeView={view} 
@@ -372,14 +391,14 @@ export default function App() {
 
           <main className="flex flex-col flex-1 h-screen overflow-hidden relative z-10 w-full min-w-0">
             {/* Top Header Bar */}
-            <header className="h-20 flex items-center justify-between px-8 bg-dark-900/50 backdrop-blur-md border-b border-white/5 shrink-0">
+            <header className="h-20 flex items-center justify-between px-8 bg-white/50 dark:bg-dark-900/50 backdrop-blur-md border-b border-slate-200 dark:border-white/5 shrink-0 transition-colors">
               <div className="flex items-center gap-4">
                 {view === 'admin' && (
                   <>
                     <div className="h-10 w-[3px] bg-brand-500 rounded-full hidden lg:block" />
                     <div>
-                      <h1 className="text-sm font-bold text-white tracking-widest uppercase">
-                        {user.role === 'subadmin' ? 'Sub-Administrative Dashboard' : 'Administrative Dashboard'}
+                      <h1 className="text-sm font-bold text-slate-800 dark:text-white tracking-widest uppercase">
+                        {user.role === 'subadmin' ? 'Sub-Admin Dashboard' : 'Admin Dashboard'}
                       </h1>
                       <p className="text-[11px] text-slate-500 font-medium mt-0.5">
                         Manage knowledge base documents and system logs
@@ -393,11 +412,11 @@ export default function App() {
                 {view === 'chat' && messages.length > 0 && (
                    <button 
                      onClick={handleDownloadPDF} 
-                     className="p-2.5 bg-dark-800 border border-white/10 rounded-xl shadow-xl hover:bg-white/10 transition flex items-center gap-2"
+                     className="p-2.5 bg-white dark:bg-dark-800 border border-slate-200 dark:border-white/10 rounded-xl shadow-[0_4px_10px_rgba(0,0,0,0.05)] dark:shadow-xl hover:bg-slate-50 dark:hover:bg-white/10 transition flex items-center gap-2"
                      title="Download Chat"
                    >
-                     <Download className="w-4 h-4 text-brand-400" />
-                     <span className="text-xs text-slate-300 font-semibold hidden sm:inline">Download Chat</span>
+                     <Download className="w-4 h-4 text-brand-500 dark:text-brand-400" />
+                     <span className="text-xs text-slate-600 dark:text-slate-300 font-semibold hidden sm:inline">Download Chat</span>
                    </button>
                 )}
               </div>
@@ -427,56 +446,56 @@ export default function App() {
             </div>
 
             {/* Global Footer - sits naturally inside main (chat area), centered within chat area only */}
-            <footer className="py-3 border-t border-white/5 bg-dark-900/80 backdrop-blur-sm text-center shrink-0 w-full">
-               <p className="text-[10px] text-slate-500 tracking-wide font-normal">
-                 © 2026 Enterprise Finance Corporation. All rights reserved.
+            <footer className="py-3 border-t border-slate-200 dark:border-white/5 bg-white/50 dark:bg-dark-900/80 backdrop-blur-sm text-center shrink-0 w-full transition-colors">
+               <p className="text-[10px] text-slate-500 dark:text-slate-500 tracking-wide font-normal">
+                 © 2026 Lumina AI. All rights reserved.
                </p>
-               <p className="text-[10px] text-slate-500 tracking-wide font-normal mt-1">
-                 Solution by AI Engineering Team
+               <p className="text-[10px] text-slate-500 dark:text-slate-500 tracking-wide font-normal mt-1">
+                 Developed by Himasha Jayamanna
                </p>
             </footer>
           </main>
           
           {/* NDA / Terms Modal */}
           {user && !hasAgreedTerms && (
-             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-dark-900/80 backdrop-blur-md p-4">
-               <div className="bg-dark-800 border border-brand-500/30 shadow-[0_0_50px_rgba(139,92,246,0.15)] rounded-2xl max-w-lg w-full p-6 sm:p-8 flex flex-col items-center text-center animate-fade-in relative overflow-y-auto custom-scrollbar max-h-[95vh]">
+             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 dark:bg-dark-900/80 backdrop-blur-md p-4 transition-colors">
+               <div className="bg-white dark:bg-dark-800 border border-brand-500/30 shadow-[0_10px_50px_rgba(139,92,246,0.1)] dark:shadow-[0_0_50px_rgba(139,92,246,0.15)] rounded-2xl max-w-lg w-full p-6 sm:p-8 flex flex-col items-center text-center animate-fade-in relative overflow-y-auto custom-scrollbar max-h-[95vh] transition-colors">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-500 via-purple-500 to-brand-500 shrink-0"></div>
                   <div className="w-12 h-12 sm:w-16 sm:h-16 bg-brand-500/10 rounded-full flex items-center justify-center mb-4 shrink-0">
-                     <ShieldAlert className="w-6 h-6 sm:w-8 sm:h-8 text-brand-400" />
+                     <ShieldAlert className="w-6 h-6 sm:w-8 sm:h-8 text-brand-500 dark:text-brand-400" />
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-white mb-1 shrink-0">Enterprise Policy Assistant</h2>
-                  <h3 className="text-sm font-semibold text-brand-400 uppercase tracking-widest mb-6">Confidentiality Agreement</h3>
+                  <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-1 shrink-0">Enterprise Policy Assistant</h2>
+                  <h3 className="text-sm font-semibold text-brand-500 dark:text-brand-400 uppercase tracking-widest mb-6">Confidentiality Agreement</h3>
                   
                   <div className="space-y-4 text-left w-full mb-8">
-                     <div className="bg-dark-900/50 rounded-xl p-4 border border-white/5 hover:border-brand-500/30 transition-colors">
-                       <h4 className="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2"><Lock className="w-4 h-4 text-rose-400"/> Strict Confidentiality</h4>
-                       <p className="text-xs text-slate-400 leading-relaxed">This is the official internal system of Enterprise Finance Corporation. Sharing policies, documents, or AI responses with external parties is strictly prohibited.</p>
+                     <div className="bg-slate-50 dark:bg-dark-900/50 rounded-xl p-4 border border-slate-100 dark:border-white/5 hover:border-brand-500/30 transition-colors">
+                       <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-2"><Lock className="w-4 h-4 text-rose-500 dark:text-rose-400"/> Strict Confidentiality</h4>
+                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">This is the official internal system of Enterprise Finance Corporation. Sharing policies, documents, or AI responses with external parties is strictly prohibited.</p>
                      </div>
-                     <div className="bg-dark-900/50 rounded-xl p-4 border border-white/5 hover:border-brand-500/30 transition-colors">
-                       <h4 className="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2"><Briefcase className="w-4 h-4 text-blue-400"/> Authorized Usage</h4>
-                       <p className="text-xs text-slate-400 leading-relaxed">This AI assistant must be used exclusively for official Enterprise duties. Do not use it for personal inquiries or non-work-related tasks.</p>
+                     <div className="bg-slate-50 dark:bg-dark-900/50 rounded-xl p-4 border border-slate-100 dark:border-white/5 hover:border-brand-500/30 transition-colors">
+                       <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-2"><Briefcase className="w-4 h-4 text-blue-500 dark:text-blue-400"/> Authorized Usage</h4>
+                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">This AI assistant must be used exclusively for official Enterprise duties. Do not use it for personal inquiries or non-work-related tasks.</p>
                      </div>
-                     <div className="bg-dark-900/50 rounded-xl p-4 border border-white/5 hover:border-brand-500/30 transition-colors">
-                       <h4 className="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2"><FileText className="w-4 h-4 text-emerald-400"/> Disclaimer</h4>
-                       <p className="text-xs text-slate-400 leading-relaxed">While the Enterprise Policy Assistant offers quick guidance, its automated responses must not be exclusively relied upon for critical decisions. Users are strictly advised to consult the original Enterprise policy documents and cross-check with the appropriate responsible authorities before taking any action.</p>
+                     <div className="bg-slate-50 dark:bg-dark-900/50 rounded-xl p-4 border border-slate-100 dark:border-white/5 hover:border-brand-500/30 transition-colors">
+                       <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-2"><FileText className="w-4 h-4 text-emerald-500 dark:text-emerald-400"/> Disclaimer</h4>
+                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">While the Enterprise Policy Assistant offers quick guidance, its automated responses must not be exclusively relied upon for critical decisions. Users are strictly advised to consult the original Enterprise policy documents and cross-check with the appropriate responsible authorities before taking any action.</p>
                      </div>
-                     <div className="bg-dark-900/50 rounded-xl p-4 border border-white/5 hover:border-brand-500/30 transition-colors">
-                       <h4 className="text-sm font-bold text-slate-200 mb-1 flex items-center gap-2"><Clock className="w-4 h-4 text-amber-400"/> Data Retention</h4>
-                       <p className="text-xs text-slate-400 leading-relaxed">To ensure data security and compliance, any chat session that remains inactive for 30 days will have its history automatically and permanently deleted from the system.</p>
+                     <div className="bg-slate-50 dark:bg-dark-900/50 rounded-xl p-4 border border-slate-100 dark:border-white/5 hover:border-brand-500/30 transition-colors">
+                       <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-2"><Clock className="w-4 h-4 text-amber-500 dark:text-amber-400"/> Data Retention</h4>
+                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">To ensure data security and compliance, any chat session that remains inactive for 30 days will have its history automatically and permanently deleted from the system.</p>
                      </div>
                   </div>
                   
                   <div 
                     onClick={() => setIsTermsChecked(!isTermsChecked)}
-                    className="w-full mb-5 flex items-start gap-3 bg-dark-900/30 p-3 rounded-lg border border-white/5 cursor-pointer hover:bg-dark-900/50 transition-colors group"
+                    className="w-full mb-5 flex items-start gap-3 bg-slate-50 dark:bg-dark-900/30 p-3 rounded-lg border border-slate-200 dark:border-white/5 cursor-pointer hover:bg-slate-100 dark:hover:bg-dark-900/50 transition-colors group"
                   >
                     <div 
-                      className={`mt-1 flex-shrink-0 w-4 h-4 rounded flex items-center justify-center transition-colors border-2 ${isTermsChecked ? 'bg-brand-500 border-brand-500' : 'bg-transparent border-slate-400 group-hover:border-slate-500'}`}
+                      className={`mt-1 flex-shrink-0 w-4 h-4 rounded flex items-center justify-center transition-colors border-2 ${isTermsChecked ? 'bg-brand-500 border-brand-500' : 'bg-transparent border-slate-300 dark:border-slate-400 group-hover:border-brand-500 dark:group-hover:border-slate-500'}`}
                     >
-                       {isTermsChecked && <Check className="w-3 h-3" style={{ color: '#000000' }} strokeWidth={4} />}
+                       {isTermsChecked && <Check className="w-3 h-3" style={{ color: '#ffffff' }} strokeWidth={4} />}
                     </div>
-                    <p className="text-xs text-slate-300 text-left leading-relaxed select-none">
+                    <p className="text-xs text-slate-600 dark:text-slate-300 text-left leading-relaxed select-none">
                       I have read and understood the terms above and agree to comply with Enterprise data policies.
                     </p>
                   </div>
@@ -487,7 +506,7 @@ export default function App() {
                         localStorage.setItem(`enterprise_terms_agreed_${user.username}`, 'true');
                         setHasAgreedTerms(true);
                      }}
-                     className={`w-full py-3.5 rounded-xl text-sm font-bold tracking-wide shadow-lg flex justify-center items-center gap-2 transition-all ${isTermsChecked ? 'btn-primary shadow-brand-500/25 active:scale-95 cursor-pointer' : 'bg-dark-700 text-slate-500 cursor-not-allowed opacity-70'}`}
+                     className={`w-full py-3.5 rounded-xl text-sm font-bold tracking-wide shadow-lg flex justify-center items-center gap-2 transition-all ${isTermsChecked ? 'btn-primary shadow-brand-500/25 active:scale-95 cursor-pointer' : 'bg-slate-100 dark:bg-dark-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'}`}
                   >
                      I Agree & Continue <ArrowRight className="w-4 h-4" />
                   </button>

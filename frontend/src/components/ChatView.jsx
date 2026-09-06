@@ -21,20 +21,20 @@ function AgentPipeline({ activeAgent }) {
   if (currentIndex === -1) currentIndex = 0;
 
   return (
-    <div className="z-20 sticky top-0 flex items-center justify-center gap-1.5 py-3 border-b border-white/10 bg-dark-900/95 backdrop-blur-sm px-4 overflow-x-auto select-none shadow-md w-full shrink-0">
+    <div className="z-20 sticky top-0 flex items-center justify-center gap-2 py-3 border-b border-slate-200 dark:border-white/5 bg-slate-50/80 dark:bg-dark-950/80 backdrop-blur-xl px-4 overflow-x-auto select-none shadow-md w-full shrink-0 transition-colors">
       {agents.map((agent, i) => {
         const isPast = i < currentIndex;
         const isActive = i === currentIndex;
         return (
-          <div key={agent} className="flex items-center gap-1.5 whitespace-nowrap">
+          <div key={agent} className="flex items-center gap-2 whitespace-nowrap">
             <div className={`px-3 py-1 rounded-full text-xs font-semibold border ${
-              isActive ? 'bg-brand-600 text-white border-brand-500 animate-pulse' :
-              isPast ? 'bg-emerald-900/50 text-emerald-400 border-emerald-700/50' :
-              'bg-dark-600 text-slate-500 border-white/5'
+              isActive ? 'bg-brand-500/20 text-brand-600 dark:text-brand-400 border-brand-500/50 shadow-[0_0_15px_rgba(6,182,212,0.3)] animate-pulse' :
+              isPast ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30' :
+              'bg-slate-100 dark:bg-dark-800 text-slate-500 dark:text-zinc-500 border-slate-200 dark:border-white/5'
             }`}>
               {agent}
             </div>
-            {i !== agents.length - 1 && <div className={`w-3 h-[1px] ${isPast ? 'bg-emerald-700/50' : 'bg-white/10'}`} />}
+            {i !== agents.length - 1 && <div className={`w-4 h-[1px] ${isPast ? 'bg-emerald-500/30' : 'bg-slate-200 dark:bg-white/5'}`} />}
           </div>
         );
       })}
@@ -70,10 +70,8 @@ export default function ChatView({
 
   const [autoScroll, setAutoScroll] = useState(true);
 
-  // Robust Smart-Scroll Implementation
   useEffect(() => {
     if (autoScroll && scrollContainerRef.current) {
-      // Direct DOM manipulation is much smoother and less buggy than scrollIntoView during rapid SSE updates
       const container = scrollContainerRef.current;
       container.scrollTop = container.scrollHeight;
     }
@@ -81,10 +79,7 @@ export default function ChatView({
 
   const handleScroll = (e) => {
     const { scrollHeight, scrollTop, clientHeight } = e.target;
-    // Increased threshold to 100px and used Math.abs to handle iOS bounce/momentum scrolling and sub-pixels
     const isAtBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 100;
-    
-    // Only update state if it actually changed to prevent excessive re-renders during fast scrolling
     if (isAtBottom !== autoScroll) {
       setAutoScroll(isAtBottom);
     }
@@ -106,7 +101,7 @@ export default function ChatView({
     const tempAssistantId = Date.now() + 1;
     const currentHist = overrideMessages !== null ? overrideMessages : messages;
     
-    setAutoScroll(true); // Force auto-scroll on new message
+    setAutoScroll(true);
 
     setMessages([
       ...currentHist,
@@ -122,20 +117,17 @@ export default function ChatView({
     abortControllerRef.current = controller;
 
     try {
-      // OPTIMIZATION #6 (Cost & Security): 3-Second Debounce Delay (Edit Grace Period)
-      // Gives the user 3 seconds to realize a typo and click Stop before ANY API calls are made.
       setMessages(prev => prev.map(msg => 
         msg.id === tempAssistantId ? { ...msg, active_agent: 'Waiting (3s)... Click Stop to edit' } : msg
       ));
       
       await new Promise(resolve => setTimeout(resolve, 3000));
       
-      // If user clicked the Stop button during the 3 seconds
       if (controller.signal.aborted) {
-        setMessages(currentHist); // Remove the pending messages
-        if (overrideQuery === null) setQuery(q); // Put the text back in the box so they can edit
+        setMessages(currentHist); 
+        if (overrideQuery === null) setQuery(q); 
         setLoading(false);
-        return; // Exit immediately, saving API cost!
+        return; 
       }
 
       setMessages(prev => prev.map(msg => 
@@ -231,33 +223,28 @@ export default function ChatView({
   const activeAgentNav = messages.length > 0 ? messages[messages.length - 1].active_agent || 'Done' : 'Done';
   
   const InputForm = (
-    <div className="w-full">
-      <form onSubmit={handleSend} className="flex items-center gap-3 w-full">
+    <div className="w-full relative z-20">
+      <form onSubmit={handleSend} className="flex items-end gap-3 w-full">
         <div className="flex-1 relative group">
-          {/* 
-            OPTIMIZATION #8 (UI/UX): Enter Key Behavior
-            Pressing Enter (without Shift) will submit the message.
-            Pressing Shift + Enter will add a new line.
-          */}
           <textarea 
             ref={inputRef} 
             value={query} 
             onChange={e => setQuery(e.target.value)} 
             onKeyDown={e => {
               if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault(); // Prevent default new line
+                e.preventDefault(); 
                 if (query.trim() && !loading) {
                   handleSend(e);
                 }
               }
             }}
-            placeholder="Ask Enterprise Policy Assistant..." 
+            placeholder="Ask Lumina..." 
             disabled={loading} 
-            rows={query.split('\n').length > 3 ? 3 : query.split('\n').length || 1}
-            style={{ minHeight: '52px', resize: 'none' }}
-            className="input-field w-full text-base py-3.5 px-5 pr-14 bg-white/5 border-white/10 focus:border-brand-500/50 transition-all rounded-2xl custom-scrollbar" 
+            rows={query.split('\n').length > 4 ? 4 : Math.max(1, query.split('\n').length)}
+            style={{ minHeight: '56px', resize: 'none' }}
+            className="w-full bg-white/80 dark:bg-dark-800/80 backdrop-blur-md border border-slate-300 dark:border-white/10 rounded-2xl px-5 py-4 pr-14 text-slate-800 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 outline-none focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/20 transition-all duration-300 custom-scrollbar shadow-lg" 
           />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8">
+          <div className="absolute right-3 bottom-3 flex items-center justify-center w-8 h-8">
             {loading && (
               <svg className="animate-spin absolute inset-0 w-8 h-8 text-rose-500/50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3"></circle>
@@ -270,49 +257,43 @@ export default function ChatView({
               disabled={!loading}
               className={`relative p-1.5 rounded-lg transition-all flex items-center justify-center z-10 ${
                 loading 
-                  ? 'text-rose-500 hover:text-rose-400 bg-dark-900 shadow-sm cursor-pointer' 
-                  : 'text-slate-600 bg-transparent cursor-default'
+                  ? 'text-rose-500 dark:text-rose-400 hover:text-rose-600 dark:hover:text-rose-300 bg-slate-100 dark:bg-dark-900 shadow-sm cursor-pointer' 
+                  : 'text-slate-400 dark:text-zinc-600 bg-transparent cursor-default'
               }`}
-              title={loading ? "Stop Generation" : ""}
             >
-              <Square className="w-3 h-3 fill-current" />
+              <Square className="w-4 h-4 fill-current" />
             </button>
           </div>
         </div>
         
-        {/* 
-          OPTIMIZATION #7 (Spam Prevention): 
-          The Send button is completely disabled while loading (isGenerating).
-          Users can only send a new query after the current one finishes or is stopped.
-        */}
         <button 
           type="submit" 
           disabled={loading || !query.trim()} 
-          className={`w-14 h-[52px] flex items-center justify-center rounded-2xl shadow-lg transition-all shrink-0 self-end ${
+          className={`w-[56px] h-[56px] flex items-center justify-center rounded-2xl shadow-lg transition-all duration-300 shrink-0 ${
             loading || !query.trim() 
-              ? 'bg-dark-600 text-slate-500 border border-white/5 shadow-none cursor-not-allowed' 
-              : 'btn-primary shadow-brand-600/20 active:scale-95'
+              ? 'bg-slate-100 dark:bg-dark-800 text-slate-400 dark:text-zinc-600 border border-slate-200 dark:border-white/5 shadow-none cursor-not-allowed' 
+              : 'bg-brand-500 hover:bg-brand-400 active:bg-brand-600 text-white shadow-brand-500/25 shadow-[0_0_20px_rgba(6,182,212,0.2)] hover:scale-[1.02] active:scale-95'
           }`}
         >
-          <Send className="w-6 h-6 ml-0.5" /> 
+          <Send className="w-5 h-5 ml-0.5" /> 
         </button>
       </form>
       
-      <div className="text-center mt-2">
-        <p className="text-[10px] text-slate-500 font-medium tracking-wide">
-          <strong className="text-slate-400 font-bold">Enterprise Policy Assistant is AI</strong> and can make mistakes.
+      <div className="text-center mt-3">
+        <p className="text-[11px] text-slate-400 dark:text-zinc-500 font-medium tracking-wide">
+          <strong className="text-slate-500 dark:text-zinc-400">Lumina AI</strong> can make mistakes. Verify important information.
         </p>
       </div>
       
       {messages.length > 0 && (
         <div className="flex flex-wrap items-center justify-end gap-4 mt-4 px-2">
            <label className="flex items-center gap-3 cursor-pointer group">
-             <span className={`text-[11px] font-semibold tracking-wide transition-colors ${saveChat ? 'text-brand-400' : 'text-slate-500'}`}>
+             <span className={`text-[11px] font-semibold tracking-wide transition-colors ${saveChat ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400 dark:text-zinc-500'}`}>
                Save Chat
              </span>
              <div className="relative">
                <input type="checkbox" className="sr-only peer" checked={saveChat} onChange={e => handleToggleSave(e.target.checked)} />
-               <div className={`block w-9 h-5 rounded-full transition-all ${saveChat ? 'bg-brand-500 shadow-[0_0_10px_rgba(139,92,246,0.3)]' : 'bg-dark-600 border border-white/10 group-hover:border-white/20'}`}></div>
+               <div className={`block w-9 h-5 rounded-full transition-all ${saveChat ? 'bg-brand-500 shadow-[0_0_10px_rgba(6,182,212,0.3)]' : 'bg-slate-200 dark:bg-dark-700 border border-slate-300 dark:border-white/5 group-hover:border-slate-400 dark:group-hover:border-white/10'}`}></div>
                <div className={`absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform duration-200 ${saveChat ? 'translate-x-4' : 'translate-x-0'}`}></div>
              </div>
            </label>
@@ -322,7 +303,7 @@ export default function ChatView({
   );
 
   return (
-    <div className="flex flex-col flex-1 min-w-0 h-full relative bg-dark-900/40">
+    <div className="flex flex-col flex-1 min-w-0 h-full relative bg-transparent">
       
       {messages.length > 0 && <AgentPipeline activeAgent={activeAgentNav} />}
 
@@ -330,25 +311,26 @@ export default function ChatView({
       <div 
         ref={scrollContainerRef} 
         onScroll={handleScroll} 
-        className="flex-1 overflow-y-auto overscroll-y-none px-4 sm:px-8 py-6 space-y-6 custom-scrollbar"
+        className="flex-1 overflow-y-auto overscroll-y-none px-4 sm:px-8 py-6 space-y-6 custom-scrollbar transition-colors"
       >
         {messages.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
-             <div className="max-w-3xl w-full flex flex-col items-center mt-[-5vh]">
-                <h1 className="text-4xl sm:text-5xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-purple-300 to-brand-400 mb-3 text-center tracking-tight">
-                   Hello, {user?.preferred_name || user?.name?.split(' ')[0] || user?.username}
+          <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh] animate-fade-in relative z-10">
+             <div className="max-w-3xl w-full flex flex-col items-center mt-[-10vh]">
+                <img src="/logo.jpg" alt="Lumina" className="w-16 h-16 mb-6 rounded-full drop-shadow-[0_0_15px_rgba(6,182,212,0.3)] animate-float" />
+                <h1 className="text-4xl sm:text-5xl font-medium text-transparent bg-clip-text bg-gradient-to-r from-brand-500 via-indigo-500 to-brand-500 dark:from-brand-300 dark:via-purple-300 dark:to-brand-400 mb-3 text-center tracking-tight" style={{ lineHeight: '1.2' }}>
+                   Hello, {user?.name?.split(' ')[0] || user?.username}
                 </h1>
-                <h2 className="text-2xl sm:text-3xl font-medium text-slate-400 text-center mb-12">
+                <h2 className="text-xl sm:text-2xl font-medium text-slate-500 dark:text-slate-400 text-center mb-10">
                    How can I help you today?
                 </h2>
                 
-                <div className="w-full max-w-2xl bg-dark-900/50 backdrop-blur-xl rounded-3xl p-3 border border-white/5 shadow-2xl">
+                <div className="w-full max-w-2xl relative transition-colors">
                    {InputForm}
                 </div>
              </div>
           </div>
         ) : (
-          <>
+          <div className="max-w-4xl mx-auto w-full space-y-6">
             {messages.map((msg, i) => (
                <MessageBubble 
                   key={`${msg.id}-${i}`} 
@@ -363,13 +345,13 @@ export default function ChatView({
             {loading && <TypingIndicator />}
             {error && <div className="glass-card border-red-500/30 bg-red-900/10 px-4 py-3 animate-fade-in"><p className="text-red-400 text-sm">{error}</p></div>}
             <div ref={bottomRef} className="h-4" />
-          </>
+          </div>
         )}
       </div>
 
-      {/* Fixed Bottom Input Area - ONLY for active chats */}
       {messages.length > 0 && (
-        <div className="px-4 sm:px-8 py-4 border-t border-white/5 bg-dark-900/80 backdrop-blur-xl shrink-0 z-10">
+        <div className="px-4 sm:px-8 pt-4 pb-6 border-t border-slate-200 dark:border-white/5 bg-slate-50/80 dark:bg-dark-950/80 backdrop-blur-xl shrink-0 z-10 w-full relative transition-colors">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-500/20 to-transparent"></div>
           <div className="max-w-4xl mx-auto">
             {InputForm}
           </div>
