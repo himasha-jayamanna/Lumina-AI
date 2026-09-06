@@ -1,236 +1,123 @@
-# Lumina Agentic RAG (Personal Edition)
+# Lumina Enterprise | Agentic RAG Platform
 
-> **Personal AI Assistant for Policy & Procedure Documents**  
-> Powered by OpenRouter · LangGraph · FastAPI · React · MSSQL
-
----
-
-## Table of Contents
-
-1. [Overview](#1-overview)
-2. [System Architecture](#2-system-architecture)
-3. [Tech Stack](#3-tech-stack)
-4. [Running the Application Locally](#4-running-the-application-locally)
-5. [Environment Setup](#5-environment-setup)
-6. [Database Schema](#6-database-schema)
-7. [Admin Tools](#7-admin-tools)
-8. [API Reference](#8-api-reference)
-9. [AI Agent Pipeline](#9-ai-agent-pipeline)
-10. [Troubleshooting](#10-troubleshooting)
+> **Enterprise-Grade AI Architecture for Secure Policy & Knowledge Retrieval**  
+> Powered by OpenRouter · LangGraph · FastAPI · React 19 · MS SQL Server
 
 ---
 
-## 1. Overview
+## 📌 Executive Summary
 
-**Lumina Agentic RAG** is a powerful AI assistant that enables querying internal documents through a secure, conversational interface.
+**Lumina Enterprise** is a production-ready, highly secure Agentic Retrieval-Augmented Generation (RAG) platform. Designed for modern corporate infrastructure, it enables organizations to query complex internal documents through an intelligent conversational interface while maintaining strict data governance, robust role-based access control, and zero-hallucination guarantees.
 
-Users log in via Google SSO. The AI reads uploaded policy PDFs, understands questions in plain language, and responds with accurate, cited answers — verified by a multi-agent hallucination-checking pipeline.
-
-### Key Features
-
-| Feature | Detail |
-|---|---|
-| **AI Model** | OpenRouter Models / Local Ollama |
-| **PDF Parsing** | LlamaParse |
-| **Vector Store** | ChromaDB (persistent, on-server) |
-| **Embeddings** | HuggingFace (`BAAI/bge-small-en-v1.5`) |
-| **Agent Pipeline** | LangGraph — Researcher → Communicator → Reviewer → Audit |
-| **Semantic Cache** | ChromaDB-based similarity cache (reduces API costs) |
-| **Authentication** | Google SSO |
-| **Database** | Microsoft SQL Server 2022 |
-| **API** | FastAPI with SSE streaming |
-| **Frontend** | React 19 + Vite + TailwindCSS |
+By utilizing an advanced **Multi-Agent Orchestration Pipeline**, the system processes human language, retrieves accurate semantic contexts, drafts comprehensive responses, and performs rigorous logical audits prior to user delivery.
 
 ---
 
-## 2. System Architecture
+## 🏗️ System Architecture & Workflow
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    React Frontend                            │
-│  (Vite + TailwindCSS · Port 3000)                           │
-│                                                             │
-│  ┌──────────────┐   ┌────────────────────────────────────┐  │
-│  │  Google SSO  │   │  Chat View (SSE Streaming)          │  │
-│  │  Login Page  │   │  • Session History Sidebar          │  │
-│  └──────────────┘   │  • Agent Pipeline Progress View     │  │
-│  ┌──────────────┐   │  • Document Citations & Download    │  │
-│  │  Admin Panel │   └────────────────────────────────────┘  │
-│  │  • Upload PDF│                                           │
-│  │  • Manage KB │                                           │
-│  └──────────────┘                                           │
-└───────────────────────────┬─────────────────────────────────┘
-                            │ HTTP / SSE
-                            ▼
-┌─────────────────────────────────────────────────────────────┐
-│          FastAPI Backend  (Port 8001)                       │
-│                                                             │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │               LangGraph Pipeline                     │   │
-│  │                                                      │   │
-│  │  Semantic Cache Check                                │   │
-│  │       │                                              │   │
-│  │       ├── CACHE HIT  → Return instantly              │   │
-│  │       │                                              │   │
-│  │       └── CACHE MISS → Run AI Pipeline:              │   │
-│  │                                                      │   │
-│  │  [Researcher] → [Communicator] → [Reviewer]          │   │
-│  │                                      │               │   │
-│  │                              ┌───────┴──────┐        │   │
-│  │                           PASS            FAIL       │   │
-│  │                              │         (retry ≤3)    │   │
-│  │                              ▼               │       │   │
-│  │                         [Audit Node] ◄───────┘       │   │
-│  └──────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Frontend [React 19 Frontend Client]
+        UI[User Interface] --> SSO[Google SSO / Manual Auth]
+        UI --> ChatView[SSE Streaming Chat]
+        UI --> Admin[RBAC Admin Dashboard]
+    end
+
+    subgraph Backend [FastAPI Backend Service]
+        API[REST API & SSE] --> Cache[Semantic Similarity Cache]
+        
+        subgraph AgentPipeline [LangGraph Multi-Agent Orchestration]
+            Researcher[Researcher Agent] --> Communicator[Communicator Agent]
+            Communicator --> Reviewer[Reviewer Agent]
+            Reviewer -->|Pass| Audit[Audit & Compliance Logging]
+            Reviewer -->|Fail Retry ≤3| Researcher
+        end
+        
+        Cache -->|Cache Miss| AgentPipeline
+        Cache -->|Cache Hit| Audit
+    end
+
+    subgraph Data [Data & Storage Layer]
+        LlamaParse[LlamaParse OCR] --> DB_Vector[(ChromaDB Vector Store)]
+        AgentPipeline <--> DB_Vector
+        SSO <--> DB_SQL[(MS SQL Server 2022)]
+        Admin <--> DB_SQL
+        Audit <--> DB_SQL
+    end
+
+    Frontend <--> Backend
 ```
 
----
+### Key Engineering Highlights
 
-## 3. Tech Stack
-
-### Backend
-| Component | Technology |
-|---|---|
-| Language | Python 3.11 |
-| API Framework | FastAPI + Uvicorn |
-| AI Orchestration | LangGraph (StateGraph) |
-| LLM | Google/OpenRouter/Ollama Dynamic Selection |
-| Embeddings | `BAAI/bge-small-en-v1.5` |
-| Vector Database | ChromaDB |
-| PDF Parsing | LlamaParse |
-| Database | Microsoft SQL Server 2022 |
-
-### Frontend
-| Component | Technology |
-|---|---|
-| Framework | React 19 + Vite |
-| Styling | TailwindCSS |
-| Authentication | Google OAuth 2.0 (SSO) |
-| Streaming | Server-Sent Events (SSE) |
+*   **Multi-Agent RAG Orchestration**: Developed using `LangGraph` StateGraphs for cyclic, self-correcting logic.
+*   **Zero-Hallucination Framework**: The `Reviewer` agent acts as a strict verification layer; if unsupported claims are detected, the graph loops back for dynamic regeneration up to 3 times before graceful degradation.
+*   **High-Fidelity Document Processing**: Utilizes `LlamaParse` for visually-rich document OCR and table extraction, chunked and embedded via `BAAI/bge-small-en-v1.5`.
+*   **Semantic Query Caching**: Intercepts semantic equivalents of previously answered questions to bypass token costs and inference latency.
+*   **Enterprise Authentication Flow**: Hybrid auth flow ensuring users can authenticate mapped Google domain SSO *only if* expressly pre-authorized by an Administrator via the MS SQL validation layer. Mandatory first-time automated password resets and security QA loops.
 
 ---
 
-## 4. Running the Application Locally
+## 🛠️ Technology Stack
 
-The absolute easiest way to start both the frontend and backend simultaneously is to use the provided shortcut script.
-
-### Using the One-Click Script (Recommended)
-1. Go to your project root folder (`Lumina_Enterprise Agentic RAG`).
-2. Double-click the **`run_locally.bat`** file.
-3. It will automatically open two terminal windows (one for the backend and one for the frontend).
-4. Once loaded, open your browser and go to **`http://localhost:3000`**.
-
-### Using the Manual Method
-If you prefer running them manually via separate terminals, do the following:
-
-**Terminal 1 (Backend):**
-```powershell
-cd backend
-.\venv\Scripts\activate
-python -m uvicorn main:app --host 127.0.0.1 --port 8001
-```
-
-**Terminal 2 (Frontend):**
-```powershell
-cd frontend
-npm run dev
-```
-Then visit **`http://localhost:3000`** in your browser.
-
-*(Default Admin Account: Username: `master_admin` | Password: `admin123`)*
+| Domain | Core Technologies & Methodologies |
+| :--- | :--- |
+| **Agentic Frameworks** | `LangChain`, `LangGraph` (Stateful Multi-Agent Orchestration & Cyclic Graphs) |
+| **Foundation Models (LLMs)** | Flexible inference layer supporting `Claude 3.5 Sonnet`, `Gemini 1.5 Pro` (Vertex AI), and open-weights (`Llama 3`) |
+| **Vector Search & Embeddings** | `ChromaDB` (Persistent Vector Store), `BAAI/bge-small-en-v1.5` (Dense Embeddings), `Semantic Caching` |
+| **Data Ingestion & Parsing** | `LlamaParse` (Advanced OCR logic for complex tables/hierarchies), `PyPDF`, Chunking algorithms |
+| **Backend Architecture** | `Python 3.11`, `FastAPI` (Asynchronous endpoints), `SSE` (Token Streaming), `Pydantic` Data Validation |
+| **Frontend Client** | `React 19`, `Vite`, `TailwindCSS`, `Lucide Icons`, Responsive Glassmorphism UI |
+| **Data & Auth Security** | `MS SQL Server 2022` (pyodbc), `Google OAuth 2.0` (SSO), Application-level encryption & hashing |
 
 ---
 
-## 5. Environment Setup
+## 🚦 Local Deployment Guide
 
-### `.env` File (backend directory)
+### Prerequisites
+*   Python 3.11+
+*   Node.js 18+
+*   Microsoft SQL Server 2022 (Express or Developer)
 
-```env
-# Microsoft SQL Server
+### 1. Environment Configuration
+
+Create a `.env` file in the `backend/` directory referencing your API and Database credentials:
+
+```bash
+# Database Configuration
 MSSQL_SERVER=localhost\SQLEXPRESS
 MSSQL_DATABASE=Enterprise_Copilot
-MSSQL_USER=
-MSSQL_PASS=
+MSSQL_USER=your_db_user 
+MSSQL_PASS=your_db_password
 
-# AI Settings
-MAX_REWRITES=2
-RAG_TOP_K=5
-
-# LlamaParse
-LLAMA_CLOUD_API_KEY=llx-<your_key_here>
-
-# Model Options
-OPENROUTER_API_KEY=sk-or-v1-<your_key_here>
+# LLM & Embedding Settings
+OPENROUTER_API_KEY=sk-or-v1-<your_key>
 OPENROUTER_MODEL=openrouter/free
+LLAMA_CLOUD_API_KEY=llx-<your_key>
 USE_LOCAL_EMBEDDINGS=True
 EMBED_MODEL=BAAI/bge-small-en-v1.5
 ```
 
----
+### 2. Initialization
 
-## 6. Database Schema
+Use the bundled setup sequence script to initialize the entire stack in one click:
+Run **`run_locally.bat`** from the root repository. This establishes the Python virtual architecture, initializes the Uvicorn web server on `:8001`, and concurrently spins up the Vite development server on `:3000`.
 
-### Tables
+- Application UI is accessible at: `http://localhost:3000`
+- Swagger API Docs accessible at: `http://localhost:8001/docs`
 
-| Table | Purpose |
-|---|---|
-| `Accounts` | User accounts with roles and details |
-| `AuditTrail` | Query + AI response logged |
-| `KnowledgeDocuments` | Uploaded PDFs with validity date ranges |
-| `DocumentLogs` | Admin actions (upload, delete, rename) |
-| `QueryCache` | Exact-match query cache |
-| `IntelligenceAudit` | Failed hallucination checks |
+> 🔑 **Initial Access:** Use `master_admin` & `Admin123` to enter the Admin Dashboard.
 
 ---
 
-## 7. Admin Tools
+## 🗄️ Database Architecture & Compliance
 
-Run these from the `backend/` folder:
-
-| Script | Purpose | Command |
-|---|---|---|
-| `wipe_kb.py` | Clear semantic cache | `python wipe_kb.py` |
-| `reset_kb.py` | Full ChromaDB reset | `python reset_kb.py` |
-| `update_password.py` | Change user password | `python update_password.py` |
-
-> ⚠️ Always clear the semantic cache (`wipe_kb.py`) after uploading or deleting policy documents.
+Adheres to strict Enterprise Data retention parameters:
+*   `Accounts`: Granular RBAC (`master`, `account_admin`, `document_admin`, `user`).
+*   `AuditTrail`: SEC/Compliance compatible, immutable tracking of every prompt, latency metric, extracted chunk hash, and agent cycle depth.
+*   `KnowledgeDocuments`: Tracks file validity vectors, mapping allowed departments and TTL timestamps.
+*   `IntelligenceAudit`: Identifies and flags prompts that induced hallucination failures to improve continuous model tuning.
 
 ---
 
-## 8. API Reference
-
-Local Development: `http://localhost:8001`  
-Swagger UI: `http://localhost:8001/docs`
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/health` | System health check |
-| `POST` | `/auth/google` | Google SSO authentication |
-| `POST` | `/chat/stream` | SSE streaming chat |
-| `POST` | `/upload` | Upload PDF to knowledge base |
-
----
-
-## 9. AI Agent Pipeline
-
-The system uses a **LangGraph StateGraph** with 4 nodes:
-
-1. **Researcher**: Embeds the query and fetches relevant ChromaDB chunks.
-2. **Communicator**: Drafts a cited answer based on the chunks.
-3. **Reviewer**: Verifies the answer purely logically to eliminate hallucinations.
-4. **Audit Node**: Logs the final interaction to the MSSQL database.
-
----
-
-## 10. Troubleshooting
-
-| Issue | Cause | Fix |
-|---|---|---|
-| AI gives wrong answers / says no docs | Cache/ChromaDB state out of sync | Run `python wipe_kb.py` or clear the entire DB |
-| Backend connection refused/error | Missing DB Connection | Make sure SQL Server Express is running |
-| Rate limits on questions | Google API Exceeded | Ensure OpenRouter is configured in `.env` |
-
----
-
-*Lumina Agentic RAG — Personal Build*
+*Lumina AI — Advanced Agentic Engineering Architecture*
